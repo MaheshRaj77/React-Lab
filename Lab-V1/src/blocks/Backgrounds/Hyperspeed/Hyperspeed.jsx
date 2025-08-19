@@ -360,7 +360,17 @@ const Hyperspeed = ({ effectOptions = {
         this.renderer.setSize(container.offsetWidth, container.offsetHeight, false);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.composer = new EffectComposer(this.renderer);
-        container.append(this.renderer.domElement);
+        
+        // Style the canvas element to be centered
+        const canvas = this.renderer.domElement;
+        canvas.style.display = 'block';
+        canvas.style.margin = 'auto';
+        canvas.style.position = 'absolute';
+        canvas.style.top = '50%';
+        canvas.style.left = '50%';
+        canvas.style.transform = 'translate(-50%, -50%)';
+        
+        container.append(canvas);
 
         this.camera = new THREE.PerspectiveCamera(
           options.fov,
@@ -439,9 +449,11 @@ const Hyperspeed = ({ effectOptions = {
         this.bloomPass = new EffectPass(
           this.camera,
           new BloomEffect({
-            luminanceThreshold: 0.2,
-            luminanceSmoothing: 0,
-            resolutionScale: 1
+            luminanceThreshold: 0.1,
+            luminanceSmoothing: 0.2,
+            resolutionScale: 1,
+            intensity: 2.5,
+            radius: 0.9
           })
         );
 
@@ -809,7 +821,7 @@ const Hyperspeed = ({ effectOptions = {
       varying vec2 vUv; 
       uniform vec2 uFade;
       void main() {
-        vec3 color = vec3(vColor);
+        vec3 color = vColor * 2.5; // Increase brightness for glow effect
         float alpha = smoothstep(uFade.x, uFade.y, vUv.x);
         gl_FragColor = vec4(color, alpha);
         if (gl_FragColor.a < 0.0001) discard;
@@ -980,7 +992,7 @@ const Hyperspeed = ({ effectOptions = {
       ${THREE.ShaderChunk["fog_pars_fragment"]}
       varying vec3 vColor;
       void main(){
-        vec3 color = vec3(vColor);
+        vec3 color = vColor * 2.0; // Increase brightness for glow effect
         gl_FragColor = vec4(color,1.);
         ${THREE.ShaderChunk["fog_fragment"]}
       }
@@ -1104,7 +1116,15 @@ const Hyperspeed = ({ effectOptions = {
       float brokenLines = step(1.0 - brokenLineWidth, fract(uv.x * 2.0)) * step(laneEmptySpace, fract(uv.y * 10.0));
       float sideLines = step(1.0 - brokenLineWidth, fract((uv.x - laneWidth * (uLanes - 1.0)) * 2.0)) + step(brokenLineWidth, uv.x);
 
-      brokenLines = mix(brokenLines, sideLines, uv.x);
+      float linePattern = mix(brokenLines, sideLines, uv.x);
+      
+      // Apply glow effect to lines
+      vec3 brokenLineColor = uBrokenLinesColor * 3.0; // Increase brightness for glow
+      vec3 shoulderLineColor = uShoulderLinesColor * 3.0; // Increase brightness for glow
+      
+      // Mix the line colors based on position
+      vec3 lineColor = mix(brokenLineColor, shoulderLineColor, step(0.8, abs(uv.x - 0.5) * 2.0));
+      color = mix(color, lineColor, linePattern);
     `;
 
     const roadFragment = roadBaseFragment
@@ -1161,7 +1181,7 @@ const Hyperspeed = ({ effectOptions = {
   }, [effectOptions]);
 
   return (
-    <div id="lights" className="w-full h-full" ref={hyperspeed}></div>
+    <div id="lights" className="w-full h-full relative" ref={hyperspeed}></div>
   );
 }
 
