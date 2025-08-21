@@ -1,5 +1,6 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
+import TestSupabase from '../components/TestSupabase';
 
 const ResourcesPage = ({ 
   onHomeClick, 
@@ -28,10 +29,17 @@ const ResourcesPage = ({
       />
       
       <div className="pt-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-white mb-8">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-4xl font-bold text-white mb-8 text-center">
             Learning Resources
           </h1>
+          
+          {/* Add TestSupabase component */}
+          <div className="bg-slate-800/50 rounded-lg p-8 backdrop-blur-sm mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Database Connection Test</h2>
+            <TestSupabase />
+          </div>
+          
           <div className="bg-slate-800/50 rounded-lg p-8 backdrop-blur-sm">
             <p className="text-gray-300 text-lg mb-4">
               Access comprehensive learning materials and documentation.

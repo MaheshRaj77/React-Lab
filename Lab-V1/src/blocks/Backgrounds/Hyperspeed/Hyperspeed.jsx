@@ -449,11 +449,11 @@ const Hyperspeed = ({ effectOptions = {
         this.bloomPass = new EffectPass(
           this.camera,
           new BloomEffect({
-            luminanceThreshold: 0.1,
+            luminanceThreshold: 0.3,
             luminanceSmoothing: 0.2,
             resolutionScale: 1,
-            intensity: 2.5,
-            radius: 0.9
+            intensity: 1.5,
+            radius: 0.7
           })
         );
 
@@ -821,7 +821,7 @@ const Hyperspeed = ({ effectOptions = {
       varying vec2 vUv; 
       uniform vec2 uFade;
       void main() {
-        vec3 color = vColor * 2.5; // Increase brightness for glow effect
+        vec3 color = vColor * 1.2; // Minimal brightness increase
         float alpha = smoothstep(uFade.x, uFade.y, vUv.x);
         gl_FragColor = vec4(color, alpha);
         if (gl_FragColor.a < 0.0001) discard;
@@ -992,7 +992,7 @@ const Hyperspeed = ({ effectOptions = {
       ${THREE.ShaderChunk["fog_pars_fragment"]}
       varying vec3 vColor;
       void main(){
-        vec3 color = vColor * 2.0; // Increase brightness for glow effect
+        vec3 color = vColor * 1.1; // Minimal brightness increase
         gl_FragColor = vec4(color,1.);
         ${THREE.ShaderChunk["fog_fragment"]}
       }
@@ -1118,9 +1118,9 @@ const Hyperspeed = ({ effectOptions = {
 
       float linePattern = mix(brokenLines, sideLines, uv.x);
       
-      // Apply glow effect to lines
-      vec3 brokenLineColor = uBrokenLinesColor * 3.0; // Increase brightness for glow
-      vec3 shoulderLineColor = uShoulderLinesColor * 3.0; // Increase brightness for glow
+      // Minimal glow effect to lines
+      vec3 brokenLineColor = uBrokenLinesColor * 1.3; // Minimal brightness increase
+      vec3 shoulderLineColor = uShoulderLinesColor * 1.3; // Minimal brightness increase
       
       // Mix the line colors based on position
       vec3 lineColor = mix(brokenLineColor, shoulderLineColor, step(0.8, abs(uv.x - 0.5) * 2.0));
