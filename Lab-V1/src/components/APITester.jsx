@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import experimentsAPI from '../api/experiments';
+import unifiedAPI from '../api/unified';
 
 const APITester = () => {
   const [result, setResult] = useState(null);
@@ -8,19 +8,21 @@ const APITester = () => {
   const testAPI = async (apiMethod, ...args) => {
     setLoading(true);
     try {
-      const response = await experimentsAPI[apiMethod](...args);
+      const response = await unifiedAPI[apiMethod](...args);
       setResult({
         method: apiMethod,
         args,
         response,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        provider: unifiedAPI.getProviderInfo().current
       });
     } catch (error) {
       setResult({
         method: apiMethod,
         args,
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        provider: unifiedAPI.getProviderInfo().current
       });
     }
     setLoading(false);
@@ -28,7 +30,12 @@ const APITester = () => {
 
   return (
     <div className="p-6 bg-slate-900 rounded-lg">
-      <h2 className="text-xl font-bold text-white mb-4">Experiments API Tester</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-white">Experiments API Tester</h2>
+        <div className="text-sm text-gray-400">
+          Using: <span className="text-blue-400">{unifiedAPI.getProviderInfo().current}</span>
+        </div>
+      </div>
       
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <button
@@ -70,6 +77,14 @@ const APITester = () => {
         >
           Search "React"
         </button>
+        
+        <button
+          onClick={() => testAPI('healthCheck')}
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+          disabled={loading}
+        >
+          Health Check
+        </button>
       </div>
 
       {loading && (
@@ -84,7 +99,10 @@ const APITester = () => {
           <h3 className="text-lg font-semibold text-white mb-2">
             {result.method}({result.args.map(arg => JSON.stringify(arg)).join(', ')})
           </h3>
-          <p className="text-xs text-gray-400 mb-2">{result.timestamp}</p>
+          <div className="flex justify-between items-center mb-2">
+            <p className="text-xs text-gray-400">{result.timestamp}</p>
+            <span className="text-xs text-blue-400">{result.provider}</span>
+          </div>
           <pre className="text-sm text-gray-300 overflow-auto max-h-96">
             {JSON.stringify(result.response || result.error, null, 2)}
           </pre>

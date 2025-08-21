@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import ExperimentCard from '../components/ExperimentCard';
 import Hyperspeed from '../blocks/Backgrounds/Hyperspeed/Hyperspeed';
-import experimentsAPI from '../api/experiments';
+import unifiedAPI from '../api/unified';
 
 const LabsPage = ({ 
   onHomeClick, 
@@ -30,7 +30,7 @@ const LabsPage = ({
       setLoading(true);
       setError(null);
       
-      const result = await experimentsAPI.getAll();
+      const result = await unifiedAPI.getAll();
       
       if (result.success) {
         setExperiments(result.data);
@@ -56,7 +56,7 @@ const LabsPage = ({
       setSeeding(true);
       setError(null);
       
-      const result = await experimentsAPI.seedDatabase();
+      const result = await unifiedAPI.seedDatabase();
       
       if (result.success) {
         console.log('Database seeded successfully');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import experimentsAPI from '../api/experiments'
+import unifiedAPI from '../api/unified'
 
 
 const ExperimentCard = ({ 
@@ -39,7 +39,7 @@ const ExperimentCard = ({
       
       try {
         setLoading(true)
-        const result = await experimentsAPI.getById(id)
+        const result = await unifiedAPI.getById(id)
         
         if (!result.success) {
           throw new Error(result.error)
