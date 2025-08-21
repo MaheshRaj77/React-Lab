@@ -47,13 +47,16 @@ const Hyperspeed = ({ effectOptions = {
   const appRef = useRef(null);
   
   useEffect(() => {
+    // Clean up previous instance
     if (appRef.current) {
       appRef.current.dispose();
-      const container = document.getElementById('lights');
-      if (container) {
-        while (container.firstChild) {
-          container.removeChild(container.firstChild);
-        }
+      appRef.current = null;
+    }
+    
+    // Clear container
+    if (hyperspeed.current) {
+      while (hyperspeed.current.firstChild) {
+        hyperspeed.current.removeChild(hyperspeed.current.firstChild);
       }
     }
 
@@ -345,6 +348,12 @@ const Hyperspeed = ({ effectOptions = {
 
     class App {
       constructor(container, options = {}) {
+        if (!container) {
+          console.error('Hyperspeed: Container element is required');
+          this.disposed = true;
+          return;
+        }
+        
         this.options = options;
         if (this.options.distortion == null) {
           this.options.distortion = {
@@ -357,24 +366,30 @@ const Hyperspeed = ({ effectOptions = {
           antialias: false,
           alpha: true
         });
-        this.renderer.setSize(container.offsetWidth, container.offsetHeight, false);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        
+        const width = container.offsetWidth || window.innerWidth;
+        const height = container.offsetHeight || window.innerHeight;
+        
+        this.renderer.setSize(width, height, false);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.composer = new EffectComposer(this.renderer);
         
-        // Style the canvas element to be centered
+        // Style the canvas element
         const canvas = this.renderer.domElement;
-        canvas.style.display = 'block';
-        canvas.style.margin = 'auto';
         canvas.style.position = 'absolute';
-        canvas.style.top = '50%';
-        canvas.style.left = '50%';
-        canvas.style.transform = 'translate(-50%, -50%)';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.style.display = 'block';
+        canvas.style.zIndex = '1';
+        canvas.style.pointerEvents = 'none'; // Allow clicks to pass through
         
         container.append(canvas);
 
         this.camera = new THREE.PerspectiveCamera(
           options.fov,
-          container.offsetWidth / container.offsetHeight,
+          width / height,
           0.1,
           10000
         );
@@ -435,10 +450,12 @@ const Hyperspeed = ({ effectOptions = {
       }
 
       onWindowResize() {
-        const width = this.container.offsetWidth;
-        const height = this.container.offsetHeight;
+        if (!this.container || !this.renderer || !this.camera || !this.composer) return;
+        
+        const width = this.container.offsetWidth || window.innerWidth;
+        const height = this.container.offsetHeight || window.innerHeight;
 
-        this.renderer.setSize(width, height);
+        this.renderer.setSize(width, height, false);
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
         this.composer.setSize(width, height);
@@ -1163,25 +1180,62 @@ const Hyperspeed = ({ effectOptions = {
       return needResize;
     }
 
-    (function () {
-      const container = document.getElementById('lights');
-      const options = { ...effectOptions };
-      options.distortion = distortions[options.distortion];
+    // Initialize the app with the container ref
+    const initializeApp = () => {
+      if (!hyperspeed.current) {
+        console.warn('Hyperspeed: Container ref not available');
+        return;
+      }
+      
+      try {
+        const options = { ...effectOptions };
+        options.distortion = distortions[options.distortion];
 
-      const myApp = new App(container, options);
-      appRef.current = myApp;
-      myApp.loadAssets().then(myApp.init);
-    })();
+        const myApp = new App(hyperspeed.current, options);
+        appRef.current = myApp;
+        
+        if (myApp) {
+          myApp.loadAssets().then(() => {
+            if (myApp && !myApp.disposed) {
+              myApp.init();
+              console.log('Hyperspeed: Initialized successfully');
+            }
+          }).catch((error) => {
+            console.error('Hyperspeed: Failed to load assets', error);
+          });
+        }
+      } catch (error) {
+        console.error('Hyperspeed: Failed to initialize', error);
+      }
+    };
+
+    // Use setTimeout to ensure DOM is ready
+    const timeoutId = setTimeout(initializeApp, 0);
 
     return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       if (appRef.current) {
         appRef.current.dispose();
+        appRef.current = null;
       }
     };
   }, [effectOptions]);
 
   return (
-    <div id="lights" className="w-full h-full relative" ref={hyperspeed}></div>
+    <div 
+      className="w-full h-full absolute inset-0" 
+      ref={hyperspeed}
+      style={{ 
+        width: '100%', 
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        overflow: 'hidden'
+      }}
+    ></div>
   );
 }
 

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import ExperimentCard from '../components/ExperimentCard';
-import Hyperspeed from '../blocks/Backgrounds/Hyperspeed/Hyperspeed';
-import unifiedAPI from '../api/unified';
+import { Hyperspeed, hyperspeedPresets, EduGlow, EduText } from '../blocks/Backgrounds/Hyperspeed';
+import backendAPI from '../api/backend';
+
 
 const LabsPage = ({ 
   onHomeClick, 
@@ -30,7 +31,7 @@ const LabsPage = ({
       setLoading(true);
       setError(null);
       
-      const result = await unifiedAPI.getAll();
+      const result = await backendAPI.getAll();
       
       if (result.success) {
         setExperiments(result.data);
@@ -56,7 +57,7 @@ const LabsPage = ({
       setSeeding(true);
       setError(null);
       
-      const result = await unifiedAPI.seedDatabase();
+      const result = await backendAPI.seedDatabase();
       
       if (result.success) {
         console.log('Database seeded successfully');
@@ -87,36 +88,16 @@ const LabsPage = ({
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Hyperspeed Background */}
-      <div className="fixed inset-0 w-full h-full overflow-hidden -z-10">
-        <Hyperspeed effectOptions={{
-          distortion: 'turbulentDistortion',
-          length: 400,
-          roadWidth: 10,
-          islandWidth: 2,
-          lanesPerRoad: 4,
-          fov: 90,
-          fovSpeedUp: 150,
-          speedUp: 2,
-          carLightsFade: 0.4,
-          totalSideLightSticks: 20,
-          lightPairsPerRoadWay: 40,
-          colors: {
-            roadColor: 0x080808,
-            islandColor: 0x0a0a0a,
-            background: 0x000000,
-            shoulderLines: 0xFFFFFF,
-            brokenLines: 0xFFFFFF,
-            leftCars: [0xD856BF, 0x6750A2, 0xC247AC],
-            rightCars: [0x03B3C3, 0x0E5EA5, 0x324555],
-            sticks: 0x03B3C3,
-          }
-        }} />
+    <div className="min-h-screen bg-slate-950 relative overflow-hidden">
+      {/* Background Effect - Full Page */}
+      <div className="fixed inset-0 z-0 w-full h-full">
+        <div className="w-full h-full relative">
+          <Hyperspeed effectOptions={hyperspeedPresets.akira} />
+        </div>
       </div>
 
       {/* Overlay for better text readability */}
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-[1px] -z-5"></div>
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-[0.5px]" style={{ zIndex: 1 }}></div>
 
       {/* Content */}
       <div className="relative z-10">

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import unifiedAPI from '../api/unified'
-
+import backendAPI from '../api/backend'
 
 const ExperimentCard = ({ 
   experiment, // Full experiment object (preferred)
@@ -39,7 +38,7 @@ const ExperimentCard = ({
       
       try {
         setLoading(true)
-        const result = await unifiedAPI.getById(id)
+        const result = await backendAPI.getById(id)
         
         if (!result.success) {
           throw new Error(result.error)
@@ -121,8 +120,10 @@ const ExperimentCard = ({
     switch (category?.toLowerCase()) {
       case 'backgrounds': return 'bg-blue-500/20 text-blue-300'
       case 'web development': return 'bg-green-500/20 text-green-300'
+      case 'web technology': return 'bg-green-500/20 text-green-300'
       case 'text animations': return 'bg-purple-500/20 text-purple-300'
       case 'ui components': return 'bg-pink-500/20 text-pink-300'
+      case 'computer networks': return 'bg-orange-500/20 text-orange-300'
       default: return 'bg-blue-500/20 text-blue-300'
     }
   }
