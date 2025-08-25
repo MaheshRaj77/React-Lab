@@ -3,7 +3,7 @@
  */
 class BackendAPI {
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3005/api';
   }
 
   /**
@@ -48,10 +48,8 @@ class BackendAPI {
   async getAll() {
     try {
       const response = await this.request('/experiments');
-      return {
-        success: true,
-        data: response.data || []
-      };
+      // The request already returns the full response with success, data, count
+      return response;
     } catch (error) {
       return {
         success: false,
@@ -69,10 +67,8 @@ class BackendAPI {
   async getById(id) {
     try {
       const response = await this.request(`/experiments/${id}`);
-      return {
-        success: true,
-        data: response.data
-      };
+      // The request already returns the full response with success, data
+      return response;
     } catch (error) {
       return {
         success: false,
