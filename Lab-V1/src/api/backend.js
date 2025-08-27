@@ -3,7 +3,7 @@
  */
 class BackendAPI {
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3005/api';
+    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
   }
 
   /**

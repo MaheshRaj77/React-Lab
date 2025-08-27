@@ -1,13 +1,13 @@
+// Load environment configuration FIRST
+import './env-config.js';
+
+// Now import other modules
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import experimentsRoutes from './routes/experiments.js';
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -18,7 +18,10 @@ app.use(helmet());
 // CORS configuration
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://127.0.0.1:3000'
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173'
 ];
 
 app.use(cors({
