@@ -7,6 +7,7 @@ function Navbar({
   onResourcesClick, 
   onAboutClick, 
   onDashboardClick,
+  onProfileClick,
   onLogoutClick,
   theme = 'light',
   isLoggedIn = false,
@@ -139,6 +140,15 @@ function Navbar({
                     <button 
                       onClick={() => {
                         setShowProfileDropdown(false);
+                        onProfileClick && onProfileClick();
+                      }}
+                      className={`block w-full text-left px-4 py-2 text-sm ${textClasses} ${hoverTextClasses} ${hoverBgClasses}`}
+                    >
+                      Profile Settings
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setShowProfileDropdown(false);
                         onDashboardClick && onDashboardClick();
                       }}
                       className={`block w-full text-left px-4 py-2 text-sm ${textClasses} ${hoverTextClasses} ${hoverBgClasses}`}
@@ -218,8 +228,14 @@ function Navbar({
                 </div>
               </div>
               <button
-                onClick={onDashboardClick}
+                onClick={onProfileClick}
                 className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2 px-3 rounded ${hoverBgClasses} mt-2`}
+              >
+                Profile Settings
+              </button>
+              <button
+                onClick={onDashboardClick}
+                className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2 px-3 rounded ${hoverBgClasses}`}
               >
                 Dashboard
               </button>

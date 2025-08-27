@@ -11,7 +11,8 @@ const HomePage = ({
   onResourcesClick, 
   onAboutClick, 
   onDashboardClick,
-  onAdminLogin, 
+  onAdminLogin,
+  onProfileClick,
   onLogoutClick, 
   isLoggedIn = false, 
   user = null 
@@ -58,6 +59,7 @@ const HomePage = ({
           onAboutClick={navigateToAbout}
           onDashboardClick={onDashboardClick}
           onAdminLogin={handleAdminLogin}
+          onProfileClick={onProfileClick}
           onLogoutClick={handleLogout}
           isLoggedIn={isLoggedIn}
           user={user}

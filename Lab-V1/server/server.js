@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import experimentsRoutes from './routes/experiments.js';
+import developersRoutes from './routes/developers.js';
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -58,6 +59,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/experiments', experimentsRoutes);
+app.use('/api/developers', developersRoutes);
 
 // API info route
 app.get('/api', (req, res) => {

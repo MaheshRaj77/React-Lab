@@ -14,6 +14,7 @@ const LabsPage = ({
   onAboutClick, 
   onDashboardClick,
   onAdminLogin,
+  onProfileClick,
   onLogoutClick,
   isLoggedIn = false,
   user = null
@@ -129,6 +130,7 @@ const LabsPage = ({
           onAboutClick={onAboutClick}
           onDashboardClick={onDashboardClick}
           onAdminLogin={onAdminLogin}
+          onProfileClick={onProfileClick}
           onLogoutClick={onLogoutClick}
           isLoggedIn={isLoggedIn}
           user={user}

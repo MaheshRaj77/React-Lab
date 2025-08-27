@@ -2,11 +2,20 @@ import React, { useState } from 'react';
 import HomePage from './pages/home';
 import LabsPage from './pages/LabsPage';
 import ResourcesPage from './pages/ResourcesPage';
+import Dashboard from './pages/Dashboard';
+import Login from './components/Login';
+import Register from './components/Register';
+import Profile from './components/Profile';
+import developersAPI from './api/developers.js';
 import './App.css';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [fromRegistration, setFromRegistration] = useState(false);
 
   // Navigation handlers
   const handleHomeClick = () => {
@@ -27,24 +36,46 @@ function App() {
   };
 
   const handleAdminLogin = () => {
-    // Mock login - in real app this would connect to authentication service
-    const mockUser = {
-      name: 'Admin User',
-      email: 'admin@cslabportal.com',
-      role: 'admin'
-    };
-    setUser(mockUser);
-    alert('Logged in successfully!');
+    setFromRegistration(false); // Reset flag when opening login manually
+    setShowLogin(true);
+  };
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setShowLogin(false);
+    setFromRegistration(false); // Reset the flag
+    setCurrentPage('home');
+  };
+
+  const handleRegister = (userData) => {
+    // After successful registration, show login form instead of going to dashboard
+    setShowRegister(false);
+    setFromRegistration(true); // Set flag to show success message in login
+    setShowLogin(true);
+    // Don't set user here since they need to login after registration
   };
 
   const handleLogout = () => {
+    developersAPI.logout();
     setUser(null);
-    alert('Logged out successfully!');
+    setCurrentPage('home');
   };
 
   const handleDashboardClick = () => {
-    // For now, just show an alert - later can be replaced with actual dashboard page
-    alert('Dashboard coming soon!');
+    if (user) {
+      setCurrentPage('dashboard');
+    } else {
+      setFromRegistration(false); // Reset flag when opening login for dashboard
+      setShowLogin(true);
+    }
+  };
+
+  const handleProfileClick = () => {
+    setShowProfile(true);
+  };
+
+  const handleUpdateUser = (updatedUser) => {
+    setUser(updatedUser);
   };
 
   const handleExploreClick = () => {
@@ -64,6 +95,7 @@ function App() {
             onAboutClick={handleAboutClick}
             onDashboardClick={handleDashboardClick}
             onAdminLogin={handleAdminLogin}
+            onProfileClick={handleProfileClick}
             onLogoutClick={handleLogout}
             isLoggedIn={!!user}
             user={user}
@@ -78,6 +110,7 @@ function App() {
             onAboutClick={handleAboutClick}
             onDashboardClick={handleDashboardClick}
             onAdminLogin={handleAdminLogin}
+            onProfileClick={handleProfileClick}
             onLogoutClick={handleLogout}
             isLoggedIn={!!user}
             user={user}
@@ -92,9 +125,23 @@ function App() {
             onAboutClick={handleAboutClick}
             onDashboardClick={handleDashboardClick}
             onAdminLogin={handleAdminLogin}
+            onProfileClick={handleProfileClick}
             onLogoutClick={handleLogout}
             isLoggedIn={!!user}
             user={user}
+          />
+        );
+      case 'dashboard':
+        return (
+          <Dashboard 
+            user={user}
+            onHomeClick={handleHomeClick}
+            onLabsClick={handleLabsClick}
+            onResourcesClick={handleResourcesClick}
+            onAboutClick={handleAboutClick}
+            onLogoutClick={handleLogout}
+            onProfileClick={handleProfileClick}
+            theme="education"
           />
         );
       default:
@@ -107,6 +154,7 @@ function App() {
             onAboutClick={handleAboutClick}
             onDashboardClick={handleDashboardClick}
             onAdminLogin={handleAdminLogin}
+            onProfileClick={handleProfileClick}
             onLogoutClick={handleLogout}
             isLoggedIn={!!user}
             user={user}
@@ -118,6 +166,45 @@ function App() {
   return (
     <div className="App">
       {renderCurrentPage()}
+      
+      {/* Authentication Modals */}
+      {showLogin && (
+        <Login 
+          onLogin={handleLogin}
+          onSwitchToRegister={() => {
+            setShowLogin(false);
+            setFromRegistration(false); // Reset flag when switching to register
+            setShowRegister(true);
+          }}
+          onClose={() => {
+            setShowLogin(false);
+            setFromRegistration(false); // Reset flag when closing
+          }}
+          theme="education"
+          fromRegistration={fromRegistration}
+        />
+      )}
+      
+      {showRegister && (
+        <Register 
+          onRegister={handleRegister}
+          onSwitchToLogin={() => {
+            setShowRegister(false);
+            setShowLogin(true);
+          }}
+          onClose={() => setShowRegister(false)}
+          theme="education"
+        />
+      )}
+      
+      {showProfile && user && (
+        <Profile 
+          user={user}
+          onUpdateUser={handleUpdateUser}
+          onClose={() => setShowProfile(false)}
+          theme="education"
+        />
+      )}
     </div>
   );
 }
