@@ -112,12 +112,9 @@ class DevelopersAPI {
     }
   }
 
-  /**
+    /**
    * Update developer profile
-   * @param {Object} profileData - The profile data to update
-   * @param {string} profileData.name - Developer's first name
-   * @param {string} profileData.lastName - Developer's last name (optional)
-   * @param {string} profileData.email - Developer's email
+   * @param {Object|FormData} profileData - The profile data to update (can be FormData for image uploads)
    * @returns {Promise<Object>} The update response
    */
   async updateProfile(profileData) {
@@ -128,16 +125,37 @@ class DevelopersAPI {
         throw new Error('No authentication token found');
       }
 
+      const isFormData = profileData instanceof FormData;
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      // Don't set Content-Type for FormData, let browser set it with boundary
+      if (!isFormData) {
+        headers['Content-Type'] = 'application/json';
+      }
+
+      console.log('Making API request to update profile...');
+      const requestStartTime = Date.now();
+
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch(`${API_BASE_URL}/api/developers/profile`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(profileData)
+        headers,
+        body: isFormData ? profileData : JSON.stringify(profileData),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
+      const requestTime = Date.now() - requestStartTime;
+      console.log('HTTP request completed in', requestTime, 'ms');
+
       const data = await response.json();
+      const parseTime = Date.now() - requestStartTime - requestTime;
+      console.log('Response parsing completed in', parseTime, 'ms');
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -150,6 +168,208 @@ class DevelopersAPI {
       return data;
     } catch (error) {
       console.error('Profile update API error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all developers (admin function)
+   * @returns {Promise<Object>} List of all developers
+   */
+  async getAll() {
+    try {
+      const token = localStorage.getItem('developerToken');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/developers`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          this.logout();
+        }
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Get all developers API error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get admin developer details (public function)
+   * @returns {Promise<Object>} Admin developer details
+   */
+  async getAdmin() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/developers/admin`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Get admin API error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new developer (admin function)
+   * @param {Object|FormData} developerData - The developer data (can be FormData for image uploads)
+   * @returns {Promise<Object>} The created developer
+   */
+  async create(developerData) {
+    try {
+      const token = localStorage.getItem('developerToken');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const isFormData = developerData instanceof FormData;
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      // Don't set Content-Type for FormData, let browser set it with boundary
+      if (!isFormData) {
+        headers['Content-Type'] = 'application/json';
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/developers`, {
+        method: 'POST',
+        headers,
+        body: isFormData ? developerData : JSON.stringify(developerData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          this.logout();
+        }
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Create developer API error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update a developer (admin function)
+   * @param {string} developerId - The developer ID
+   * @param {Object|FormData} developerData - The developer data to update (can be FormData for image uploads)
+   * @returns {Promise<Object>} The updated developer
+   */
+  async update(developerId, developerData) {
+    try {
+      const token = localStorage.getItem('developerToken');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const isFormData = developerData instanceof FormData;
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      // Don't set Content-Type for FormData, let browser set it with boundary
+      if (!isFormData) {
+        headers['Content-Type'] = 'application/json';
+      }
+
+      console.log('Making API request to update developer:', developerId);
+      const requestStartTime = Date.now();
+
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+      const response = await fetch(`${API_BASE_URL}/api/developers/${developerId}`, {
+        method: 'PUT',
+        headers,
+        body: isFormData ? developerData : JSON.stringify(developerData),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      const requestTime = Date.now() - requestStartTime;
+      console.log('HTTP request completed in', requestTime, 'ms');
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          this.logout();
+        }
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Update developer API error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a developer (admin function)
+   * @param {string} developerId - The developer ID
+   * @returns {Promise<Object>} The deletion response
+   */
+  async delete(developerId) {
+    try {
+      const token = localStorage.getItem('developerToken');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/developers/${developerId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          this.logout();
+        }
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Delete developer API error:', error);
       throw error;
     }
   }

@@ -8,6 +8,7 @@ import Register from './components/Register';
 import Profile from './components/Profile';
 import developersAPI from './api/developers.js';
 import './App.css';
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -142,6 +143,7 @@ function App() {
             onLogoutClick={handleLogout}
             onProfileClick={handleProfileClick}
             theme="education"
+            showExperimentsManagement={true} // Example prop
           />
         );
       default:

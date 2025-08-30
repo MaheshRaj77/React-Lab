@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from '../components/Navbar';
 import { Hyperspeed, hyperspeedPresets, EduGlow, EduText } from '../blocks/Backgrounds/Hyperspeed';
 import CountUp from '../blocks/TextAnimations/CountUp/CountUp';
+import developersAPI from '../api/developers.js';
 
 
 const HomePage = ({ 
@@ -17,6 +18,29 @@ const HomePage = ({
   isLoggedIn = false, 
   user = null 
 }) => {
+  const [admin, setAdmin] = useState(null);
+  const [adminLoading, setAdminLoading] = useState(true);
+  const [adminError, setAdminError] = useState(null);
+
+  // Fetch admin details on component mount
+  useEffect(() => {
+    const fetchAdminDetails = async () => {
+      try {
+        setAdminLoading(true);
+        const response = await developersAPI.getAdmin();
+        if (response.success && response.data) {
+          setAdmin(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch admin details:', error);
+        setAdminError('Failed to load admin details');
+      } finally {
+        setAdminLoading(false);
+      }
+    };
+
+    fetchAdminDetails();
+  }, []);
   const navigateToLabs = () => {
     onExploreClick && onExploreClick();
   };
@@ -33,8 +57,34 @@ const HomePage = ({
     onAdminLogin && onAdminLogin();
   };
 
-  const handleLogout = () => {
-    onLogoutClick && onLogoutClick();
+  // Function to validate and get image data URL
+  const getImageDataUrl = (base64Data) => {
+    if (!base64Data) return null;
+    
+    // Try different image formats
+    const formats = ['jpeg', 'png', 'gif', 'webp'];
+    
+    for (const format of formats) {
+      try {
+        const dataUrl = `data:image/${format};base64,${base64Data}`;
+        return dataUrl;
+      } catch (error) {
+        continue;
+      }
+    }
+    
+    return null;
+  };
+
+  // Function to validate base64 data
+  const isValidBase64 = (str) => {
+    try {
+      // Check if it's a valid base64 string
+      const decoded = atob(str);
+      return decoded.length > 0;
+    } catch (error) {
+      return false;
+    }
   };
   
 
@@ -60,7 +110,7 @@ const HomePage = ({
           onDashboardClick={onDashboardClick}
           onAdminLogin={handleAdminLogin}
           onProfileClick={onProfileClick}
-          onLogoutClick={handleLogout}
+          onLogoutClick={onLogoutClick}
           isLoggedIn={isLoggedIn}
           user={user}
           theme="education" 
@@ -189,7 +239,85 @@ const HomePage = ({
             
             <div className="flex justify-center">
               <div className="w-full max-w-2xl px-4 mb-8">
+                {adminLoading ? (
+                  <div className="border border-blue-500/30 rounded-lg p-8 backdrop-blur-md bg-slate-900/20 hover:border-white/30 transition-all text-center">
+                    <div className="animate-pulse">
+                      <div className="h-6 bg-blue-500/20 rounded w-3/4 mx-auto mb-4"></div>
+                      <div className="h-4 bg-blue-500/20 rounded w-1/2 mx-auto mb-2"></div>
+                      <div className="h-4 bg-blue-500/20 rounded w-2/3 mx-auto"></div>
+                    </div>
+                  </div>
+                ) : adminError ? (
+                  <div className="border border-red-500/30 rounded-lg p-8 backdrop-blur-md bg-slate-900/20 text-center">
+                    <p className="text-red-400">{adminError}</p>
+                  </div>
+                ) : admin ? (
+                  <div className="border border-blue-500/30 rounded-lg p-8 backdrop-blur-md bg-slate-900/20 hover:border-white/30 transition-all">
+                    <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                      {/* Profile Image */}
+                      <div className="flex-shrink-0">
+                        {admin.profile_image && isValidBase64(admin.profile_image) ? (
+                          <img
+                            src={getImageDataUrl(admin.profile_image)}
+                            alt={`${admin.name} ${admin.lastName || ''}`}
+                            className="w-24 h-24 rounded-full border-2 border-blue-500/50 object-cover"
+                            onError={(e) => {
+                              console.log('Image failed to load, trying different formats');
+                              // Try different formats if current one fails
+                              const currentSrc = e.target.src;
+                              if (currentSrc.includes('jpeg')) {
+                                e.target.src = currentSrc.replace('jpeg', 'png');
+                              } else if (currentSrc.includes('png')) {
+                                e.target.src = currentSrc.replace('png', 'gif');
+                              } else if (currentSrc.includes('gif')) {
+                                e.target.src = currentSrc.replace('gif', 'webp');
+                              } else {
+                                // If all formats fail, hide the image
+                                e.target.style.display = 'none';
+                                e.target.nextElementSibling.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+                        {/* Fallback avatar - always show */}
+                        <div className="w-24 h-24 rounded-full bg-blue-500/20 border-2 border-blue-500/50 flex items-center justify-center">
+                          <span className="text-2xl font-bold text-blue-400">
+                            {admin.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
 
+                      {/* Admin Details */}
+                      <div className="flex-1 text-center md:text-left">
+                        <h3 className="text-2xl font-bold text-white mb-2">
+                          {admin.name} {admin.lastName || ''}
+                        </h3>
+                        <p className="text-blue-400 mb-2">{admin.role}</p>
+                        <p className="text-gray-300 mb-3">{admin.email}</p>
+                        <p className="text-sm text-gray-400">
+                          Developer since {new Date(admin.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="mt-6 pt-6 border-t border-blue-500/20">
+                      <p className="text-gray-300 leading-relaxed">
+                        As the lead developer of this CS Lab Portal, I created this comprehensive platform
+                        to provide students with hands-on experience in web technologies and advanced networking concepts.
+                        The portal features interactive labs, real-time collaboration tools, and cutting-edge educational resources.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="border border-blue-500/30 rounded-lg p-8 backdrop-blur-md bg-slate-900/20 text-center">
+                    <p className="text-gray-400">Admin details not available</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

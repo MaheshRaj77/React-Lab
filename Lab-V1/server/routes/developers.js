@@ -1,12 +1,30 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import multer from 'multer';
 import { supabase } from '../config/supabase.js';
 
 const router = express.Router();
 
 // Secret key for JWT (in production, this should be in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(), // Store files in memory as Buffer
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Allow only image files
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.'), false);
+    }
+  }
+});
 
 // Helper function to validate email format
 const isValidEmail = (email) => {
@@ -95,9 +113,9 @@ router.post('/register', async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
+      {
         developerId: newDeveloper.id,
-        email: newDeveloper.email 
+        email: newDeveloper.email
       },
       JWT_SECRET,
       { expiresIn: '7d' }
@@ -162,9 +180,9 @@ router.post('/login', async (req, res) => {
     }
 
     // Verify password
-    const isValidPassword = await bcrypt.compare(password, developer.password);
+    const isValidPasswordCheck = await bcrypt.compare(password, developer.password);
 
-    if (!isValidPassword) {
+    if (!isValidPasswordCheck) {
       return res.status(401).json({
         error: 'Invalid credentials',
         details: 'Email or password is incorrect'
@@ -173,15 +191,15 @@ router.post('/login', async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
+      {
         developerId: developer.id,
-        email: developer.email 
+        email: developer.email
       },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // Return success response (exclude password from response)
+    // Return success response
     res.status(200).json({
       message: 'Login successful',
       developer: {
@@ -189,6 +207,7 @@ router.post('/login', async (req, res) => {
         name: developer.name,
         lastName: developer.last_name,
         email: developer.email,
+        role: developer.role,
         createdAt: developer.created_at
       },
       token
@@ -205,143 +224,123 @@ router.post('/login', async (req, res) => {
 
 /**
  * GET /api/developers/profile
- * Get developer profile (requires authentication)
+ * Get developer profile (authenticated)
  */
 router.get('/profile', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
-        error: 'Unauthorized',
-        details: 'No valid authorization token provided'
+        error: 'Authorization token required'
       });
     }
 
     const token = authHeader.substring(7);
 
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      
-      // Get developer profile
-      const { data: developer, error: findError } = await supabase
-        .from('developers')
-        .select('id, name, last_name, email, created_at')
-        .eq('id', decoded.developerId)
-        .single();
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET);
 
-      if (findError || !developer) {
-        return res.status(404).json({
-          error: 'Developer not found'
-        });
-      }
+    // Get developer profile
+    const { data: developer, error } = await supabase
+      .from('developers')
+      .select('id, name, last_name, email, role, created_at, profile_image_url')
+      .eq('id', decoded.developerId)
+      .single();
 
-      res.status(200).json({
-        developer: {
-          id: developer.id,
-          name: developer.name,
-          lastName: developer.last_name,
-          email: developer.email,
-          createdAt: developer.created_at
-        }
-      });
-
-    } catch (jwtError) {
-      return res.status(401).json({
-        error: 'Invalid token',
-        details: 'The provided token is invalid or expired'
+    if (error || !developer) {
+      return res.status(404).json({
+        error: 'Developer not found'
       });
     }
 
+    res.status(200).json({
+      developer
+    });
+
   } catch (error) {
     console.error('Profile error:', error);
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        error: 'Invalid token'
+      });
+    }
     res.status(500).json({
-      error: 'Internal server error',
-      details: 'An unexpected error occurred while fetching profile'
+      error: 'Internal server error'
     });
   }
 });
 
 /**
- * PUT /api/developers/profile
- * Update developer profile (requires authentication)
+ * GET /api/developers
+ * Get all developers (admin only)
  */
-router.put('/profile', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        error: 'Unauthorized',
-        details: 'No valid authorization token provided'
-      });
+    const { data, error } = await supabase
+      .from('developers')
+      .select('id, name, last_name, email, role, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
     }
 
-    const token = authHeader.substring(7);
-    const { name, lastName, email } = req.body;
+    res.status(200).json({
+      success: true,
+      data: data || []
+    });
+  } catch (error) {
+    console.error('Get developers error:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
 
-    // Validation
-    if (!name || !email) {
-      return res.status(400).json({
-        error: 'Missing required fields',
-        details: 'Name and email are required'
-      });
+/**
+ * GET /api/developers/admin
+ * Get admin dashboard data
+ */
+router.get('/admin', async (req, res) => {
+  try {
+    // Get total counts
+    const { count: totalDevelopers, error: countError } = await supabase
+      .from('developers')
+      .select('*', { count: 'exact', head: true });
+
+    const { count: totalExperiments, error: expCountError } = await supabase
+      .from('experiments')
+      .select('*', { count: 'exact', head: true });
+
+    if (countError || expCountError) {
+      throw countError || expCountError;
     }
 
-    if (!isValidEmail(email)) {
-      return res.status(400).json({
-        error: 'Invalid email format'
-      });
+    // Get recent developers
+    const { data: recentDevelopers, error: recentError } = await supabase
+      .from('developers')
+      .select('id, name, last_name, email, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (recentError) {
+      throw recentError;
     }
 
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      
-      // Update developer profile
-      const { data: updatedDeveloper, error: updateError } = await supabase
-        .from('developers')
-        .update({
-          name: name.trim(),
-          last_name: lastName ? lastName.trim() : null,
-          email: email.toLowerCase().trim(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', decoded.developerId)
-        .select('id, name, last_name, email, created_at, updated_at')
-        .single();
-
-      if (updateError) {
-        console.error('Update error:', updateError);
-        return res.status(500).json({
-          error: 'Failed to update profile',
-          details: 'Database error occurred'
-        });
+    res.status(200).json({
+      success: true,
+      data: {
+        totalDevelopers: totalDevelopers || 0,
+        totalExperiments: totalExperiments || 0,
+        recentDevelopers: recentDevelopers || []
       }
-
-      res.status(200).json({
-        message: 'Profile updated successfully',
-        developer: {
-          id: updatedDeveloper.id,
-          name: updatedDeveloper.name,
-          lastName: updatedDeveloper.last_name,
-          email: updatedDeveloper.email,
-          createdAt: updatedDeveloper.created_at,
-          updatedAt: updatedDeveloper.updated_at
-        }
-      });
-
-    } catch (jwtError) {
-      return res.status(401).json({
-        error: 'Invalid token',
-        details: 'The provided token is invalid or expired'
-      });
-    }
+    });
 
   } catch (error) {
-    console.error('Profile update error:', error);
+    console.error('Admin dashboard error:', error);
     res.status(500).json({
-      error: 'Internal server error',
-      details: 'An unexpected error occurred while updating profile'
+      error: 'Internal server error'
     });
   }
 });

@@ -8,33 +8,33 @@ class BackendAPI {
 
   /**
    * Make HTTP request
+   * @param {string} method - HTTP method (GET, POST, PUT, DELETE)
    * @param {string} endpoint 
-   * @param {object} options 
+   * @param {object} data - Request body data
    * @returns {Promise}
    */
-  async request(endpoint, options = {}) {
+  async request(method, endpoint, data = null) {
     const url = `${this.baseURL}${endpoint}`;
     const config = {
+      method,
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers,
       },
-      ...options,
     };
 
-    if (config.body && typeof config.body === 'object') {
-      config.body = JSON.stringify(config.body);
+    if (data && (method === 'POST' || method === 'PUT')) {
+      config.body = JSON.stringify(data);
     }
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+        throw new Error(responseData.error || `HTTP error! status: ${response.status}`);
       }
 
-      return data;
+      return responseData;
     } catch (error) {
       console.error(`API request failed: ${error.message}`);
       throw error;
@@ -47,7 +47,7 @@ class BackendAPI {
    */
   async getAll() {
     try {
-      const response = await this.request('/api/experiments');
+      const response = await this.request('GET', '/api/experiments');
       // The request already returns the full response with success, data, count
       return response;
     } catch (error) {
@@ -66,7 +66,7 @@ class BackendAPI {
    */
   async getById(id) {
     try {
-      const response = await this.request(`/api/experiments/${id}`);
+      const response = await this.request('GET', `/api/experiments/${id}`);
       // The request already returns the full response with success, data
       return response;
     } catch (error) {
@@ -83,15 +83,19 @@ class BackendAPI {
    * @returns {Promise<{success: boolean, data?: Object, error?: string}>}
    */
   async createExperiment(data) {
-    return this.request('POST', '/experiments', data);
+    return this.request('POST', '/api/experiments', data);
   }
 
   async updateExperiment(id, data) {
-    return this.request('PUT', `/experiments/${id}`, data);
+    return this.request('PUT', `/api/experiments/${id}`, data);
+  }
+
+  async deleteExperiment(id) {
+    return this.removeExperiment(id);
   }
 
   async removeExperiment(id) {
-    return this.request('DELETE', `/experiments/${id}`);
+    return this.request('DELETE', `/api/experiments/${id}`);
   }
 
   /**
@@ -101,7 +105,7 @@ class BackendAPI {
    */
   async getByCategory(category) {
     try {
-      const response = await this.request(`/api/experiments/category/${encodeURIComponent(category)}`);
+      const response = await this.request('GET', `/api/experiments/category/${encodeURIComponent(category)}`);
       return {
         success: true,
         data: response.data || []
@@ -122,7 +126,7 @@ class BackendAPI {
    */
   async getByDifficulty(difficulty) {
     try {
-      const response = await this.request(`/api/experiments/difficulty/${encodeURIComponent(difficulty)}`);
+      const response = await this.request('GET', `/api/experiments/difficulty/${encodeURIComponent(difficulty)}`);
       return {
         success: true,
         data: response.data || []
@@ -143,7 +147,7 @@ class BackendAPI {
    */
   async search(query) {
     try {
-      const response = await this.request(`/api/experiments/search/${encodeURIComponent(query)}`);
+      const response = await this.request('GET', `/api/experiments/search/${encodeURIComponent(query)}`);
       return {
         success: true,
         data: response.data || []
@@ -163,9 +167,7 @@ class BackendAPI {
    */
   async seedDatabase() {
     try {
-      const response = await this.request('/api/experiments/seed', {
-        method: 'POST'
-      });
+      const response = await this.request('POST', '/api/experiments/seed');
       return {
         success: true,
         data: response.data,
@@ -186,7 +188,7 @@ class BackendAPI {
    */
   async healthCheck() {
     try {
-      const response = await this.request('/health');
+      const response = await this.request('GET', '/health');
       return {
         success: true,
         data: response

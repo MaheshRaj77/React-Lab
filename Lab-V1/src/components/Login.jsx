@@ -73,6 +73,7 @@ const Login = ({ onLogin, onSwitchToRegister, onClose, theme = 'education', from
       };
       
       onLogin(userFromAPI);
+      alert('Welcome back! You have been successfully logged in.');
     } catch (error) {
       setErrors({ general: error.message || 'Login failed. Please try again.' });
     } finally {

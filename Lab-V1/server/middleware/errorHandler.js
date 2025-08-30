@@ -1,36 +1,54 @@
-// Error handling middleware
 export const errorHandler = (err, req, res, next) => {
   console.error('Error:', err);
 
-  // Default error
-  let error = {
-    message: err.message || 'Internal Server Error',
-    status: err.status || 500
-  };
-
-  // Supabase errors
-  if (err.code) {
-    error.message = err.message;
-    error.status = 400;
-  }
-
-  // Validation errors
+  // Mongoose validation error
   if (err.name === 'ValidationError') {
-    error.message = 'Validation Error';
-    error.status = 400;
+    const errors = Object.values(err.errors).map(val => val.message);
+    return res.status(400).json({
+      success: false,
+      error: 'Validation Error',
+      details: errors
+    });
   }
 
-  res.status(error.status).json({
+  // Mongoose duplicate key error
+  if (err.code === 11000) {
+    const field = Object.keys(err.keyValue)[0];
+    return res.status(409).json({
+      success: false,
+      error: 'Duplicate Error',
+      details: `${field} already exists`
+    });
+  }
+
+  // JWT errors
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid token'
+    });
+  }
+
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      success: false,
+      error: 'Token expired'
+    });
+  }
+
+  // Default error
+  res.status(err.status || 500).json({
     success: false,
-    error: error.message,
+    error: err.message || 'Internal Server Error',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 };
 
-// 404 handler
-export const notFoundHandler = (req, res) => {
+export const notFoundHandler = (req, res, next) => {
   res.status(404).json({
     success: false,
-    error: 'Route not found'
+    error: 'Route not found',
+    path: req.path,
+    method: req.method
   });
 };
