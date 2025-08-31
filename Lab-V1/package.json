@@ -17,6 +17,7 @@
     "@fontsource/montserrat": "^5.2.6",
     "@fontsource/poppins": "^5.2.6",
     "@fontsource/roboto": "^5.2.6",
+    "@react-three/fiber": "^9.3.0",
     "@supabase/supabase-js": "^2.55.0",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
