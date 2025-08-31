@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { showSuccess } from '../shared/NotificationManager';
 
 // Edit Experiment Modal Component
 const EditExperimentModal = ({ experiment, onSave, onCancel, loading }) => {
@@ -225,7 +226,7 @@ const ExperimentsTable = ({
   const handleSaveEdit = async (formData) => {
     if (onEdit) {
       await onEdit(editingExperiment, formData);
-      alert('Experiment updated successfully!');
+      showSuccess('Experiment updated successfully!');
       setEditingExperiment(null);
     }
   };
@@ -290,47 +291,59 @@ const ExperimentsTable = ({
               </tr>
             </thead>
             <tbody>
-              {sortedExperiments.map((exp) => (
-                <tr key={exp.id} className="border-b border-slate-800 hover:bg-slate-700/30 transition-colors">
-                  {onSelectExperiment && (
-                    <td className="p-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedExperiments.includes(exp.id)}
-                        onChange={() => onSelectExperiment(exp.id)}
-                        className="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500 focus:ring-2"
-                      />
-                    </td>
-                  )}
-                  <td className="p-4 font-medium text-white">{exp.title}</td>
-                  <td className="p-4 text-sm text-gray-400">{new Date(exp.updatedAt).toLocaleDateString()}</td>
-                  <td className="p-4 flex flex-wrap gap-2">
-                    {exp.technologies.map((tech) => (
-                      <span key={tech} className="bg-slate-600 text-gray-300 text-xs px-2 py-1 rounded">
-                        {tech}
-                      </span>
-                    ))}
-                  </td>
-                  <td className="p-4">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(exp)}
-                        disabled={loading}
-                        className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded text-xs hover:bg-yellow-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => onDelete && onDelete(exp)}
-                        disabled={loading}
-                        className="px-3 py-1 bg-red-500/20 text-red-300 rounded text-xs hover:bg-red-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Delete
-                      </button>
+              {sortedExperiments.length === 0 ? (
+                <tr>
+                  <td colSpan={onSelectExperiment ? 5 : 4} className="p-8 text-center text-gray-400">
+                    <div className="flex flex-col items-center space-y-2">
+                      <span className="text-4xl">🔬</span>
+                      <p className="text-lg font-medium">No experiments found</p>
+                      <p className="text-sm">Create your first experiment to get started!</p>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                sortedExperiments.map((exp) => (
+                  <tr key={exp.id} className="border-b border-slate-800 hover:bg-slate-700/30 transition-colors">
+                    {onSelectExperiment && (
+                      <td className="p-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedExperiments.includes(exp.id)}
+                          onChange={() => onSelectExperiment(exp.id)}
+                          className="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500 focus:ring-2"
+                        />
+                      </td>
+                    )}
+                    <td className="p-4 font-medium text-white">{exp.title}</td>
+                    <td className="p-4 text-sm text-gray-400">{new Date(exp.updatedAt).toLocaleDateString()}</td>
+                    <td className="p-4 flex flex-wrap gap-2">
+                      {exp.technologies.map((tech) => (
+                        <span key={tech} className="bg-slate-600 text-gray-300 text-xs px-2 py-1 rounded">
+                          {tech}
+                        </span>
+                      ))}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEdit(exp)}
+                          disabled={loading}
+                          className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded text-xs hover:bg-yellow-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => onDelete && onDelete(exp)}
+                          disabled={loading}
+                          className="px-3 py-1 bg-red-500/20 text-red-300 rounded text-xs hover:bg-red-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

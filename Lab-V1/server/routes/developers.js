@@ -25,7 +25,7 @@ const isValidPassword = (password) => {
  */
 router.post('/register', async (req, res) => {
   try {
-    const { name, lastName, email, password, confirmPassword } = req.body;
+    const { name, lastName, email, password, confirmPassword, supabaseUserId } = req.body;
 
     // Validation
     if (!name || !email || !password || !confirmPassword) {
@@ -79,10 +79,11 @@ router.post('/register', async (req, res) => {
           name: name.trim(),
           last_name: lastName ? lastName.trim() : null,
           email: email.toLowerCase().trim(),
-          password: hashedPassword
+          password: hashedPassword,
+          supabase_user_id: supabaseUserId || null
         }
       ])
-      .select('id, name, last_name, email, created_at')
+      .select('id, name, last_name, email, supabase_user_id, created_at')
       .single();
 
     if (insertError) {
@@ -111,6 +112,7 @@ router.post('/register', async (req, res) => {
         name: newDeveloper.name,
         lastName: newDeveloper.last_name,
         email: newDeveloper.email,
+        supabaseUserId: newDeveloper.supabase_user_id,
         createdAt: newDeveloper.created_at
       },
       token
@@ -189,6 +191,7 @@ router.post('/login', async (req, res) => {
         name: developer.name,
         lastName: developer.last_name,
         email: developer.email,
+        supabaseUserId: developer.supabase_user_id,
         role: developer.role,
         createdAt: developer.created_at
       },
@@ -226,7 +229,7 @@ router.get('/profile', async (req, res) => {
     // Get developer profile
     const { data: developer, error } = await supabase
       .from('developers')
-      .select('id, name, last_name, email, role, created_at, profile_image_url')
+      .select('id, name, last_name, email, supabase_user_id, role, created_at, profile_image_url')
       .eq('id', decoded.developerId)
       .single();
 
@@ -289,7 +292,7 @@ router.get('/admin-details', async (req, res) => {
     // Get the first admin user (you might want to modify this logic)
     const { data: adminData, error } = await supabase
       .from('developers')
-      .select('id, name, last_name, email, role, profile_image_url, created_at')
+      .select('id, name, last_name, email, supabase_user_id, role, profile_image_url, created_at')
       .eq('role', 'Admin', 'admin')
       .limit(1)
       .single();
@@ -312,6 +315,7 @@ router.get('/admin-details', async (req, res) => {
       name: adminData.name,
       lastName: adminData.last_name,
       email: adminData.email,
+      supabaseUserId: adminData.supabase_user_id,
       role: adminData.role || 'Lead Developer',
       profile_image_url: adminData.profile_image_url,
       created_at: adminData.created_at
@@ -352,7 +356,7 @@ router.get('/admin', async (req, res) => {
     // Get recent developers
     const { data: recentDevelopers, error: recentError } = await supabase
       .from('developers')
-      .select('id, name, last_name, email, created_at')
+      .select('id, name, last_name, email, supabase_user_id, created_at')
       .order('created_at', { ascending: false })
       .limit(5);
 
@@ -424,7 +428,7 @@ router.put('/:id', async (req, res) => {
     // Check if developer exists
     const { data: existingDeveloper, error: fetchError } = await supabase
       .from('developers')
-      .select('id, email')
+      .select('id, email, supabase_user_id')
       .eq('id', id)
       .single();
 
@@ -464,7 +468,7 @@ router.put('/:id', async (req, res) => {
       .from('developers')
       .update(updateData)
       .eq('id', id)
-      .select('id, name, last_name, email, role, profile_image_url, created_at, updated_at')
+      .select('id, name, last_name, email, supabase_user_id, role, profile_image_url, created_at, updated_at')
       .single();
 
     if (updateError) {
@@ -495,7 +499,7 @@ router.put('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     // Handle both FormData and JSON requests
-    let name, lastName, email, password, role, profile_image_url;
+    let name, lastName, email, password, role, profile_image_url, supabaseUserId;
 
     if (req.file) {
       // Handle FormData request
@@ -504,6 +508,7 @@ router.post('/', async (req, res) => {
       email = req.body.email;
       password = req.body.password;
       role = req.body.role;
+      supabaseUserId = req.body.supabaseUserId;
 
       // Convert uploaded image to base64 data URL for now
       // In production, you'd upload to a cloud storage service
@@ -514,7 +519,7 @@ router.post('/', async (req, res) => {
       }
     } else {
       // Handle JSON request
-      ({ name, lastName, email, password, role, profile_image_url } = req.body);
+      ({ name, lastName, email, password, role, profile_image_url, supabaseUserId } = req.body);
     }
 
     // Validate required fields
@@ -561,13 +566,14 @@ router.post('/', async (req, res) => {
       email,
       password: hashedPassword,
       role: role || 'Developer',
-      profile_image_url: profile_image_url || null
+      profile_image_url: profile_image_url || null,
+      supabase_user_id: supabaseUserId || null
     };
 
     const { data: newDeveloper, error: createError } = await supabase
       .from('developers')
       .insert(developerData)
-      .select('id, name, last_name, email, role, profile_image_url, created_at')
+      .select('id, name, last_name, email, supabase_user_id, role, profile_image_url, created_at')
       .single();
 
     if (createError) {
@@ -592,9 +598,36 @@ router.post('/', async (req, res) => {
 });
 
 /**
- * DELETE /api/developers/:id
- * Delete a developer (admin function)
+ * GET /api/developers/by-supabase/:supabaseUserId
+ * Get developer by Supabase user ID
  */
+router.get('/by-supabase/:supabaseUserId', async (req, res) => {
+  try {
+    const { supabaseUserId } = req.params;
+
+    const { data: developer, error } = await supabase
+      .from('developers')
+      .select('id, name, last_name, email, supabase_user_id, role, created_at')
+      .eq('supabase_user_id', supabaseUserId)
+      .single();
+
+    if (error || !developer) {
+      return res.status(404).json({
+        error: 'Developer not found'
+      });
+    }
+
+    res.status(200).json({
+      developer
+    });
+
+  } catch (error) {
+    console.error('Get developer by Supabase ID error:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;

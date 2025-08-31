@@ -70,5 +70,61 @@ export const experimentsAPI = {
     
     if (error) throw error
     return data
+  },
+
+  // File upload related functions
+  async uploadFile(experimentId, file, metadata = {}) {
+    const formData = new FormData()
+    formData.append('file', file)
+    if (experimentId) formData.append('experiment_id', experimentId)
+    if (metadata.description) formData.append('description', metadata.description)
+    if (metadata.tags) formData.append('tags', metadata.tags)
+    if (metadata.isPublic !== undefined) formData.append('is_public', metadata.isPublic.toString())
+
+    const response = await fetch('/api/experiment-files/upload', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Upload failed')
+    }
+
+    return await response.json()
+  },
+
+  async getExperimentFiles(experimentId) {
+    const response = await fetch(`/api/experiment-files/experiment/${experimentId}`)
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch files')
+    }
+
+    const data = await response.json()
+    return data.data || []
+  },
+
+  async downloadFile(fileId) {
+    const response = await fetch(`/api/experiment-files/${fileId}/download`)
+    
+    if (!response.ok) {
+      throw new Error('Download failed')
+    }
+
+    return response.blob()
+  },
+
+  async deleteFile(fileId) {
+    const response = await fetch(`/api/experiment-files/${fileId}`, {
+      method: 'DELETE'
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Delete failed')
+    }
+
+    return await response.json()
   }
 }

@@ -97,7 +97,7 @@ const Footer = ({
             <h4 className="text-lg font-semibold text-white mb-4">Get in Touch</h4>
             <div className="space-y-2 text-sm text-gray-400">
               <p>📧 support@cslabportal.com</p>
-              <p>📱 +1 (555) 123-4567</p>
+              <p>📱 Contact via email</p>
               <p>📍 Virtual Learning Platform</p>
             </div>
             <div className="mt-4">

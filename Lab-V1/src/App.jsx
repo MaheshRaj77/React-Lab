@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HomePage from './pages/home';
 import LabsPage from './pages/LabsPage';
 import ResourcesPage from './pages/ResourcesPage';
@@ -7,6 +7,8 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Profile from './components/Profile';
 import developersAPI from './api/developers.js';
+import { authUtils } from './utils/auth';
+import NotificationManager from './components/shared/NotificationManager';
 import './App.css';
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -17,6 +19,15 @@ function App() {
   const [showRegister, setShowRegister] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [fromRegistration, setFromRegistration] = useState(false);
+
+  // Check for remember me data on app initialization
+  useEffect(() => {
+    const rememberedUser = authUtils.getRememberMeData();
+    if (rememberedUser) {
+      setUser(rememberedUser);
+      setCurrentPage('home');
+    }
+  }, []);
 
   // Navigation handlers
   const handleHomeClick = () => {
@@ -32,8 +43,10 @@ function App() {
   };
 
   const handleAboutClick = () => {
-    // For now, just show an alert - later can be replaced with actual about page
-    alert('About section coming soon!');
+    // For now, just show an info message - later can be replaced with actual about page
+    if (window.showNotification) {
+      window.showNotification('About section coming soon!', 'info');
+    }
   };
 
   const handleAdminLogin = () => {
@@ -167,6 +180,7 @@ function App() {
 
   return (
     <div className="App">
+      <NotificationManager />
       {renderCurrentPage()}
       
       {/* Authentication Modals */}

@@ -5,10 +5,12 @@ import developersAPI from '../api/developers.js';
 const Login = ({ onLogin, onSwitchToRegister, onClose, theme = 'education', fromRegistration = false }) => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const isEdu = theme === 'education';
   const isAkira = theme === 'akira';
@@ -59,6 +61,7 @@ const Login = ({ onLogin, onSwitchToRegister, onClose, theme = 'education', from
     setErrors({});
     
     try {
+      // Login with custom API only (simpler for small projects)
       const response = await developersAPI.login(formData);
       
       // Map API response to expected user format
@@ -73,8 +76,29 @@ const Login = ({ onLogin, onSwitchToRegister, onClose, theme = 'education', from
         created_at: response.developer.createdAt
       };
       
+      // Handle Remember Me functionality
+      if (formData.rememberMe) {
+        const expirationTime = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 days
+        const token = localStorage.getItem('developerToken'); // Get the token that was just stored
+        const rememberMeData = {
+          user: userFromAPI,
+          token: token,
+          expiration: expirationTime
+        };
+        localStorage.setItem('rememberMe', JSON.stringify(rememberMeData));
+      } else {
+        // Clear any existing remember me data if not checked
+        localStorage.removeItem('rememberMe');
+      }
+      
       onLogin(userFromAPI);
-      alert('Welcome back! You have been successfully logged in.');
+      setSuccessMessage('Welcome back! You have been successfully logged in.');
+      
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage('');
+        onClose(); // Close the modal after successful login
+      }, 3000);
     } catch (error) {
       setErrors({ general: error.message || 'Login failed. Please try again.' });
     } finally {
@@ -86,7 +110,15 @@ const Login = ({ onLogin, onSwitchToRegister, onClose, theme = 'education', from
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
       {/* LightRays Background */}
       <div className="absolute inset-0 w-full h-full z-0">
-        <LightRays raysColor="#60a5fa" raysOrigin="top-center" raysSpeed={0.7} lightSpread={1.2} rayLength={2.5} fadeDistance={1.1} className="w-full h-full" />
+        <LightRays 
+          raysColor={isAkira ? "#ff4444" : isEdu ? "#60a5fa" : "#60a5fa"} 
+          raysOrigin="top-center" 
+          raysSpeed={0.7} 
+          lightSpread={1.2} 
+          rayLength={2.5} 
+          fadeDistance={1.1} 
+          className="w-full h-full" 
+        />
         <div className="absolute inset-0 bg-black/60" />
       </div>
 
@@ -105,10 +137,12 @@ const Login = ({ onLogin, onSwitchToRegister, onClose, theme = 'education', from
 
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center mb-6 shadow-lg">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+            <div className="mx-auto w-24 h-24 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mb-6 shadow-lg border border-white/20">
+              <img 
+                src="/logo.png" 
+                alt="CS Lab Portal Logo" 
+                className="w-16 h-16 object-contain" 
+              />
             </div>
             <h2 className="text-3xl font-bold text-white mb-2 font-heading">
               Welcome Back
@@ -135,6 +169,17 @@ const Login = ({ onLogin, onSwitchToRegister, onClose, theme = 'education', from
             {errors.general && (
               <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg text-sm backdrop-blur-sm">
                 {errors.general}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-3 rounded-lg text-sm backdrop-blur-sm animate-in fade-in-0 slide-in-from-top-2 duration-300">
+                <div className="flex items-center justify-center mb-1">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {successMessage}
+                </div>
               </div>
             )}
 
@@ -178,6 +223,24 @@ const Login = ({ onLogin, onSwitchToRegister, onClose, theme = 'education', from
               {errors.password && (
                 <p className="mt-2 text-sm text-red-300">{errors.password}</p>
               )}
+            </div>
+
+            {/* Remember Me Checkbox */}
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  rememberMe: e.target.checked
+                }))}
+                className="w-4 h-4 text-primary-400 bg-white/10 border-white/20 rounded focus:ring-primary-400 focus:ring-2 transition-all duration-200"
+              />
+              <label htmlFor="rememberMe" className="ml-3 text-sm text-white/70 font-sans">
+                Remember me for 7 days
+              </label>
             </div>
 
             {/* Submit Button */}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import developersAPI from '../api/developers.js';
+import { showSuccess } from './shared/NotificationManager';
 
 const Profile = ({ user, onUpdateUser, onClose, theme = 'education' }) => {
   const [formData, setFormData] = useState({
@@ -168,7 +169,7 @@ const Profile = ({ user, onUpdateUser, onClose, theme = 'education' }) => {
       // Clear image states
       setProfileImage(null);
       setImagePreview(null);
-      alert('Profile updated successfully!');
+      showSuccess('Profile updated successfully!');
     } catch (error) {
       console.error('Profile update error:', error);
       setErrors({ general: error.message || 'Update failed. Please try again.' });
@@ -300,7 +301,7 @@ const Profile = ({ user, onUpdateUser, onClose, theme = 'education' }) => {
                         }
                         ${errors.email ? 'border-red-500' : ''}
                       `}
-                      placeholder="your.email@example.com"
+                      placeholder="Enter your email address"
                     />
                   ) : (
                     <p className={`py-3 px-4 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>

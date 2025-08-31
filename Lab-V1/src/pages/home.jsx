@@ -121,7 +121,7 @@ const HomePage = ({
         />
 
         {/* Hero Section */}
-        <section className="relative pt-20 pb-16 md:pb-32 flex items-center justify-center min-h-[80vh] md:min-h-[85vh]">
+        <section className="relative pt-24 pb-16 md:pb-32 flex items-center justify-center min-h-[80vh] md:min-h-[85vh]">
           <div className="container mx-auto px-4 max-w-7xl">
             <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
               <div className="w-full lg:w-1/2 text-center lg:text-left">
@@ -141,19 +141,17 @@ const HomePage = ({
                 <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
                   <button
                     onClick={navigateToLabs}
-                    className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 via-primary-600 to-indigo-600 text-white font-semibold rounded-lg text-lg hover:from-blue-700 hover:via-primary-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/40 font-sans flex items-center justify-center gap-3 border border-blue-500/30 overflow-hidden"
+                    className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 via-primary-600 to-indigo-600 text-white font-semibold rounded-lg text-lg hover:from-blue-700 hover:via-primary-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/40 font-sans flex items-center justify-center gap-3 border border-blue-500/30"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
                     <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     <span className="relative z-10">Enter Labs</span>
                   </button>
                   <button
-                    className="group relative px-8 py-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border-2 border-emerald-400/40 text-white font-semibold rounded-lg text-lg hover:from-emerald-500/20 hover:to-teal-500/20 hover:border-emerald-400/60 transition-all duration-300 font-sans flex items-center justify-center gap-3 overflow-hidden shadow-lg hover:shadow-emerald-500/20"
+                    className="group relative px-8 py-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border-2 border-emerald-400/40 text-white font-semibold rounded-lg text-lg hover:from-emerald-500/20 hover:to-teal-500/20 hover:border-emerald-400/60 transition-all duration-300 font-sans flex items-center justify-center gap-3 shadow-lg hover:shadow-emerald-500/20"
                     onClick={navigateToResources}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-300/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
                     <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
@@ -161,27 +159,13 @@ const HomePage = ({
                   </button>
                 </div>
               </div>
-              <div className="w-full lg:w-1/2 mt-8 lg:mt-0">
-                <div className="relative flex items-center justify-center h-80 md:h-96">
+                <div className="relative flex items-center justify-center h-[28rem] md:h-[40rem]">
                   <img
                     src="/logo.png"
                     alt="CS Lab Portal Logo"
-                    className="w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl hover:scale-110 transition-transform duration-300"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = `
-                        <div class="w-20 h-20 md:w-24 md:h-24 mx-auto mb-6 bg-gradient-to-br from-primary-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                          <svg class="w-10 h-10 md:w-12 md:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-bold text-white mb-3 font-heading">Interactive Learning</h3>
-                        <p class="text-gray-300 text-base md:text-lg font-sans px-4">Experience hands-on networking and web development labs</p>
-                      `;
-                    }}
+                    className="w-80 h-80 md:w-[28rem] md:h-[28rem] object-contain drop-shadow-2xl hover:scale-110 transition-transform duration-300"
                   />
                 </div>
-              </div>
             </div>
           </div>
         </section>
@@ -404,6 +388,22 @@ const HomePage = ({
                   </div>
                 ) : admin ? (
                   <div className="group relative overflow-hidden border border-white/20 rounded-3xl p-8 backdrop-blur-lg bg-gradient-to-br from-slate-900/50 to-slate-800/50 hover:from-slate-800/60 hover:to-slate-700/60 transition-all duration-500 hover:shadow-2xl hover:shadow-white/10">
+                    {/* Brand Logo in Top Right Corner */}
+                    <div className="absolute top-4 right-4 z-20">
+                      <div className="relative overflow-hidden rounded-lg">
+                        <img
+                          src="/logo.png"
+                          alt="CS Lab Portal Brand"
+                          className="w-12 h-12 md:w-16 md:h-16 object-contain opacity-80 hover:opacity-100 transition-opacity duration-300 drop-shadow-lg"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                        {/* Shiny effect overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-shine opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                      </div>
+                    </div>
+
                     {/* Shimmer effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
 
@@ -465,7 +465,7 @@ const HomePage = ({
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                               </svg>
-                              {admin.email || 'admin@example.com'}
+                              {admin.email || 'No email provided'}
                             </p>
                             <p className="text-gray-400 text-sm font-sans flex items-center justify-center lg:justify-start gap-2">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -473,8 +473,6 @@ const HomePage = ({
                               </svg>
                               Developer since {admin.created_at ? new Date(admin.created_at).toLocaleDateString('en-US', {
                                 year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
                               }) : 'Unknown date'}
                             </p>
 

@@ -10,6 +10,9 @@ import multer from 'multer';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import experimentsRoutes from './routes/experiments.js';
 import developersRoutes from './routes/developers.js';
+import experimentFilesRoutes from './routes/experiment-files.js';
+import labRoutes from './routes/lab.js';
+import labFilesRoutes from './routes/lab-files.js';
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -42,7 +45,9 @@ const allowedOrigins = [
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
   'http://localhost:8000',
-  'http://127.0.0.1:8000'
+  'http://127.0.0.1:8000',
+  'http://10.233.110.149:3000',  // Add your network IP
+  'http://10.233.110.149:5173'   // Add your network IP
 ];
 
 app.use(cors({
@@ -73,6 +78,9 @@ app.use('/api/developers', upload.single('profileImage'));
 // API routes
 app.use('/api/experiments', experimentsRoutes);
 app.use('/api/developers', developersRoutes);
+app.use('/api/experiment-files', experimentFilesRoutes);
+app.use('/api/lab', labRoutes);
+app.use('/api/lab-files', labFilesRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -83,7 +91,8 @@ app.get('/api/health', (req, res) => {
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🌐 Network access: http://10.233.110.149:${PORT}/api/health`);
 });

@@ -46,12 +46,12 @@ function Navbar({
   const isDark = theme === 'dark' || isAkira || isEdu;
   
   const navClasses = isEdu
-    ? "backdrop-blur-md bg-slate-900/30 border-b border-blue-500/30 sticky top-0 z-[100]" 
+    ? "backdrop-blur-md bg-slate-900/30 border-b border-blue-500/30 fixed top-0 left-0 right-0 z-[100]" 
     : isAkira
-    ? "backdrop-blur-md bg-black/30 border-b border-red-500/30 sticky top-0 z-[100]" 
+    ? "backdrop-blur-md bg-black/30 border-b border-red-500/30 fixed top-0 left-0 right-0 z-[100]" 
     : isDark
-    ? "backdrop-blur-md bg-black/30 border-b border-white/10 sticky top-0 z-[100]" 
-    : "bg-white border-b border-gray-200 sticky top-0 z-[100]";
+    ? "backdrop-blur-md bg-black/30 border-b border-white/10 fixed top-0 left-0 right-0 z-[100]" 
+    : "bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-[100]";
   
   const textClasses = isDark ? "text-white" : "text-gray-700";
   const hoverTextClasses = isEdu
@@ -89,11 +89,15 @@ function Navbar({
             title="CS Lab Portal"
             onClick={onHomeClick}
           >
-            <img 
-              src="/logo.png" 
-              alt="CS Lab Portal Logo" 
-              className={`h-8 w-8 transition-all duration-300 hover:scale-110 hover:rotate-12 animate-fade-in ${isAkira ? 'akira-glow' : isEdu ? 'edu-glow' : ''}`} 
-            />
+            <div className="relative overflow-hidden rounded">
+              <img 
+                src="/logo.png" 
+                alt="CS Lab Portal Logo" 
+                className={`h-8 w-8 transition-all duration-300 hover:scale-110 hover:rotate-12 animate-fade-in ${isAkira ? 'akira-glow' : isEdu ? 'edu-glow' : ''}`} 
+              />
+              {/* Shiny effect overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-shine opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
             <div>
               <div className="text-xl font-bold font-heading">
                 <ShinyText 

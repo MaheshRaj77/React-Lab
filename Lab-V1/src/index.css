@@ -72,6 +72,15 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
-.shiny-text-subtitle {
-  font-family: 'Poppins', sans-serif;
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shine {
+  animation: shine 2s ease-in-out infinite;
 }

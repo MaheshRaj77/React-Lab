@@ -405,6 +405,7 @@ class DevelopersAPI {
    */
   logout() {
     localStorage.removeItem('developerToken');
+    localStorage.removeItem('rememberMe');
   }
 
   /**

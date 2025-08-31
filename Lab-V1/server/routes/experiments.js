@@ -11,6 +11,15 @@ router.get('/', async (req, res, next) => {
       .order('created_at', { ascending: false });
 
     if (error) {
+      // If table doesn't exist, return empty array
+      if (error.code === 'PGRST116' || error.message.includes('relation "public.experiments" does not exist')) {
+        return res.json({
+          success: true,
+          data: [],
+          count: 0,
+          message: 'Experiments table does not exist yet'
+        });
+      }
       throw error;
     }
 
@@ -64,9 +73,22 @@ router.get('/:id', async (req, res, next) => {
 
 // Create experiment
 router.post('/', async (req, res) => {
-  const { data, error } = await supabase.from('experiments').insert(req.body).select();
-  if (error) return res.status(500).json({ error: error.message });
-  res.status(201).json(data[0]);
+  try {
+    const { data, error } = await supabase.from('experiments').insert(req.body).select();
+    if (error) {
+      // If table doesn't exist, return error message
+      if (error.code === 'PGRST116' || error.message.includes('relation "public.experiments" does not exist')) {
+        return res.status(400).json({ 
+          error: 'Experiments table does not exist. Please create the table first.',
+          details: 'Run the database migration to create the experiments table.'
+        });
+      }
+      return res.status(500).json({ error: error.message });
+    }
+    res.status(201).json(data[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Update experiment

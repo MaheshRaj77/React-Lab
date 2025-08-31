@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import ExperimentsTable from '../../components/dashboard/experimentstable';
+import { showSuccess, showError } from '../../components/shared/NotificationManager';
 
 const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,9 +80,9 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
         await onDelete({ id: expId });
       }
       setSelectedExperiments([]);
-      alert('Selected experiments deleted successfully!');
+      showSuccess('Selected experiments deleted successfully!');
     } catch {
-      alert('Failed to delete some experiments. Please try again.');
+      showError('Failed to delete some experiments. Please try again.');
     }
   };
 
@@ -92,48 +93,6 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
     setSelectedDifficulty('');
     setSortBy('created_at');
     setSortOrder('desc');
-  };
-
-  // Experiment templates
-  const experimentTemplates = [
-    {
-      title: 'Web Development Fundamentals',
-      desc: 'Learn HTML, CSS, and JavaScript basics through hands-on projects',
-      category: 'Web Technology',
-      difficulty: 'Beginner',
-      estimated_time: '4-6 hours',
-      path: '/experiments/web-fundamentals'
-    },
-    {
-      title: 'React Component Library',
-      desc: 'Build reusable React components with TypeScript',
-      category: 'Web Technology',
-      difficulty: 'Intermediate',
-      estimated_time: '6-8 hours',
-      path: '/experiments/react-components'
-    },
-    {
-      title: 'Database Design Project',
-      desc: 'Design and implement a relational database schema',
-      category: 'Database Systems',
-      difficulty: 'Intermediate',
-      estimated_time: '5-7 hours',
-      path: '/experiments/database-design'
-    },
-    {
-      title: 'API Development with Node.js',
-      desc: 'Create RESTful APIs using Express.js and MongoDB',
-      category: 'Web Technology',
-      difficulty: 'Advanced',
-      estimated_time: '8-10 hours',
-      path: '/experiments/nodejs-api'
-    }
-  ];
-
-  // Handle template selection
-  const handleCreateFromTemplate = (template) => {
-    // Pre-fill the create modal with template data
-    onCreate(template);
   };
 
   // Export experiments to JSON
@@ -159,9 +118,9 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
           const importedExperiments = JSON.parse(e.target.result);
           // Here you would typically send these to the backend
           console.log('Imported experiments:', importedExperiments);
-          alert('Import functionality would be implemented here');
+          showInfo('Import functionality would be implemented here');
         } catch {
-          alert('Invalid JSON file');
+          showError('Invalid JSON file');
         }
       };
       reader.readAsText(file);
@@ -315,40 +274,6 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
               </button>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Experiment Templates */}
-      <div className="mb-6 backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Quick Start Templates</h3>
-        <p className="text-white/70 text-sm mb-4">
-          Jumpstart your experiments with pre-built templates
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {experimentTemplates.map((template, index) => (
-            <div
-              key={index}
-              className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-4 hover:bg-white/20 transition-all cursor-pointer hover:scale-105 duration-300"
-              onClick={() => handleCreateFromTemplate(template)}
-            >
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="text-white font-medium text-sm">{template.title}</h4>
-                <span className={`text-xs px-2 py-1 rounded-lg border ${
-                  template.difficulty === 'Beginner' ? 'bg-green-500/20 text-green-300 border-green-400/30' :
-                  template.difficulty === 'Intermediate' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30' :
-                  template.difficulty === 'Advanced' ? 'bg-orange-500/20 text-orange-300 border-orange-400/30' :
-                  'bg-red-500/20 text-red-300 border-red-400/30'
-                }`}>
-                  {template.difficulty}
-                </span>
-              </div>
-              <p className="text-white/70 text-xs mb-3 line-clamp-2">{template.desc}</p>
-              <div className="flex items-center justify-between text-xs text-white/60">
-                <span>{template.category}</span>
-                <span>{template.estimated_time}</span>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 

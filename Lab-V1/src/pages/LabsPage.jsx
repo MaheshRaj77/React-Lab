@@ -6,6 +6,7 @@ import ExperimentDetailView from '../components/ExperimentDetailView';
 import ExperimentSkeleton from '../components/ExperimentSkeleton';
 import { Hyperspeed, hyperspeedPresets, EduGlow, EduText } from '../blocks/Backgrounds/Hyperspeed';
 import backendAPI from '../api/backend';
+import { showInfo } from '../components/shared/NotificationManager';
 
 
 const LabsPage = ({ 
@@ -26,6 +27,22 @@ const LabsPage = ({
   const [detailExperiment, setDetailExperiment] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
+
+  // Define available categories
+  const categories = [
+    'Web Technology',
+    'Computer Networks',
+    'Data Structures',
+    'Algorithms',
+    'Database Systems',
+    'Operating Systems',
+    'Software Engineering',
+    'Machine Learning',
+    'Cybersecurity',
+    'Mobile Development',
+    'Cloud Computing',
+    'DevOps'
+  ];
 
   // Fetch experiments from backend
   const fetchExperiments = async () => {
@@ -56,6 +73,25 @@ const LabsPage = ({
   useEffect(() => {
     fetchExperiments();
   }, []);
+
+  // Group experiments by category
+  const groupExperimentsByCategory = (experiments) => {
+    const grouped = {};
+    experiments.forEach(experiment => {
+      const category = experiment.category || 'Uncategorized';
+      if (!grouped[category]) {
+        grouped[category] = [];
+      }
+      grouped[category].push(experiment);
+    });
+    return grouped;
+  };
+
+  // Get categories that have experiments
+  const getAvailableCategories = (experiments) => {
+    const grouped = groupExperimentsByCategory(experiments);
+    return categories.filter(category => grouped[category] && grouped[category].length > 0);
+  };
 
   // Launch experiment (open path)
 
@@ -92,7 +128,7 @@ const LabsPage = ({
       window.open(fullPath, '_blank');
     } else {
       console.log('Navigate to:', experiment.path);
-      alert(`Navigation to ${experiment.title} - Path: ${experiment.path}`);
+      showInfo(`Navigation to ${experiment.title} - Path: ${experiment.path}`);
     }
   };
 
@@ -125,59 +161,80 @@ const LabsPage = ({
         />
         
         {/* Header with Quote */}
-        <div className="pt-32 pb-12 px-4">
+        <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight font-heading">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight font-heading leading-tight">
               Virtual Labs
             </h1>
             <div className="max-w-4xl mx-auto">
-              <blockquote className="text-xl md:text-2xl text-neutral-300 italic font-light leading-relaxed font-sans">
+              <blockquote className="text-lg md:text-xl lg:text-2xl text-neutral-300 italic font-light leading-relaxed font-sans mb-6">
                 "The best way to learn is by doing. Explore, experiment, and discover through hands-on laboratory experiences."
               </blockquote>
-              <p className="text-neutral-400 mt-4 text-lg font-sans">— Innovation through Practice</p>
+              <p className="text-neutral-400 text-base md:text-lg font-sans">— Innovation through Practice</p>
             </div>
           </div>
         </div>
 
-        {/* Experiments Grid */}
-        <div className="px-4 pb-20">
+        {/* Experiments Sections */}
+        <div className="px-4 sm:px-6 lg:px-8 pb-24">
           <div className="max-w-7xl mx-auto">
             {/* Error message */}
             {error && (
-              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded text-red-300 text-center">
-                {error}
+              <div className="mb-8 p-6 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300 text-center max-w-2xl mx-auto">
+                <div className="text-2xl mb-2">⚠️</div>
+                <p className="font-medium">{error}</p>
               </div>
             )}
 
             {loading ? (
-              <ExperimentSkeleton count={6} />
+              <ExperimentSkeleton count={10} />
             ) : experiments.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="bg-slate-900/80 backdrop-blur-md rounded-xl p-8 border border-slate-700/50 max-w-md mx-auto">
-                  <div className="text-6xl mb-4">🧪</div>
-                  <h3 className="text-xl font-bold text-white mb-4 font-heading">No Experiments Found</h3>
-                  <p className="text-neutral-400 mb-6">
-                    It looks like your experiments database is empty.
+              <div className="text-center py-16">
+                <div className="bg-slate-900/80 backdrop-blur-md rounded-xl p-10 border border-slate-700/50 max-w-lg mx-auto">
+                  <div className="text-7xl mb-6">🧪</div>
+                  <h3 className="text-2xl font-bold text-white mb-6 font-heading">No Experiments Found</h3>
+                  <p className="text-neutral-400 text-lg leading-relaxed">
+                    It looks like your experiments database is empty. Check back later for new experiments!
                   </p>
                 </div>
               </div>
             ) : (
               <>
-                <div className="text-center mb-8">
-                  <p className="text-neutral-400">
-                    Found <span className="text-primary-400 font-semibold">{experiments.length}</span> experiments in the database
+                <div className="text-center mb-12">
+                  <p className="text-neutral-400 text-lg">
+                    Found <span className="text-blue-400 font-semibold text-xl">{experiments.length}</span> experiments across <span className="text-purple-400 font-semibold">{getAvailableCategories(experiments).length}</span> categories
                   </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {experiments.map((experiment) => (
-                    <ExperimentCard
-                      key={experiment.id}
-                      experiment={experiment}
-                      onLaunch={handleNavigateToExperiment}
-                      onViewDetails={handleShowDetail}
-                    />
-                  ))}
-                </div>
+                
+                {/* Category Sections */}
+                {getAvailableCategories(experiments).map((category) => {
+                  const categoryExperiments = groupExperimentsByCategory(experiments)[category];
+                  return (
+                    <div key={category} className="mb-16">
+                      <div className="flex items-center mb-8">
+                        <h2 className="text-2xl md:text-3xl font-bold text-white font-heading mr-6">
+                          {category}
+                        </h2>
+                        <div className="flex-1 h-px bg-gradient-to-r from-slate-600 to-transparent"></div>
+                        <span className="text-sm text-slate-400 font-medium ml-6 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50">
+                          {categoryExperiments.length} {categoryExperiments.length === 1 ? 'experiment' : 'experiments'}
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+                        {categoryExperiments.map((experiment) => (
+                          <ExperimentCard
+                            key={experiment.id}
+                            experiment={experiment}
+                            onLaunch={handleNavigateToExperiment}
+                            onViewDetails={handleShowDetail}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+                
                 {/* Detail View Modal */}
                 {detailExperiment && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">

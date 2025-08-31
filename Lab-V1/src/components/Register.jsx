@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LightRays from '../blocks/Backgrounds/LightRays/LightRays';
 import developersAPI from '../api/developers.js';
 
 const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' }) => {
@@ -39,9 +40,7 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
       newErrors.firstName = 'First name is required';
     }
     
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    }
+    // Last name is now optional
     
     if (!formData.email) {
       newErrors.email = 'Email is required';
@@ -76,12 +75,14 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
     setErrors({});
     
     try {
+      // Register with custom API only (simpler for small projects)
       const registrationData = {
         name: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-        confirmPassword: formData.confirmPassword
+        confirmPassword: formData.confirmPassword,
+        supabaseUserId: null // Keep as null for now
       };
       
       await developersAPI.register(registrationData);
@@ -94,6 +95,7 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
         onRegister(); // This will now switch to login instead of logging in automatically
       }, 2000);
     } catch (error) {
+      console.error('Registration error:', error);
       setErrors({ general: error.message || 'Registration failed. Please try again.' });
     } finally {
       setIsLoading(false);
@@ -104,6 +106,15 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
       {/* LightRays Background */}
       <div className="absolute inset-0 w-full h-full z-0">
+        <LightRays 
+          raysColor={isAkira ? "#ff4444" : isEdu ? "#60a5fa" : "#60a5fa"} 
+          raysOrigin="top-center" 
+          raysSpeed={0.7} 
+          lightSpread={1.2} 
+          rayLength={2.5} 
+          fadeDistance={1.1} 
+          className="w-full h-full" 
+        />
         <div className="absolute inset-0 bg-black/60" />
       </div>
 
@@ -121,11 +132,12 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
           </button>
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center mb-6 shadow-lg">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
+            <div className="mx-auto w-24 h-24 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mb-6 shadow-lg border border-white/20">
+              <img 
+                src="/logo.png" 
+                alt="CS Lab Portal Logo" 
+                className="w-16 h-16 object-contain" 
+              />
             </div>
             <h2 className="text-3xl font-bold text-white mb-2 font-heading">
               Create Account
@@ -178,7 +190,7 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
 
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-white/80 mb-2 font-sans">
-                  Last Name
+                  Last Name 
                 </label>
                 <input
                   type="text"
@@ -187,7 +199,7 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
                   value={formData.lastName}
                   onChange={handleChange}
                   className="w-full pl-4 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 backdrop-blur-sm font-sans"
-                  placeholder="Last name"
+                  placeholder="Last name (optional)"
                 />
                 {errors.lastName && (
                   <p className="mt-2 text-sm text-red-300 font-sans">{errors.lastName}</p>
