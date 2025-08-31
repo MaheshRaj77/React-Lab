@@ -214,7 +214,7 @@ class DevelopersAPI {
    */
   async getAdmin() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/developers/admin`, {
+      const response = await fetch(`${API_BASE_URL}/api/developers/admin-details`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -230,6 +230,32 @@ class DevelopersAPI {
       return data;
     } catch (error) {
       console.error('Get admin API error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get admin dashboard data
+   * @returns {Promise<Object>} Admin dashboard statistics
+   */
+  async getAdminDashboard() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/developers/admin`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Get admin dashboard API error:', error);
       throw error;
     }
   }

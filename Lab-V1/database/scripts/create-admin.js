@@ -59,7 +59,6 @@ async function createAdminUser() {
 
       if (fs.existsSync(imagePath)) {
         const imageBuffer = fs.readFileSync(imagePath);
-        const base64Image = imageBuffer.toString('base64');
 
         const { error: imageError } = await supabase
           .from('developers')

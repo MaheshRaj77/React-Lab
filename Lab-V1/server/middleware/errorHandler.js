@@ -1,4 +1,4 @@
-export const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res, _next) => {
   console.error('Error:', err);
 
   // Mongoose validation error
@@ -44,7 +44,7 @@ export const errorHandler = (err, req, res, next) => {
   });
 };
 
-export const notFoundHandler = (req, res, next) => {
+export const notFoundHandler = (req, res, _next) => {
   res.status(404).json({
     success: false,
     error: 'Route not found',

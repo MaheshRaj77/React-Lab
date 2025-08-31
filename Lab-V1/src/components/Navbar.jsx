@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import ShinyText from '../blocks/TextAnimations/ShinyText/ShinyText';
 
 function Navbar({ 
   onAdminLogin, 
@@ -45,12 +46,12 @@ function Navbar({
   const isDark = theme === 'dark' || isAkira || isEdu;
   
   const navClasses = isEdu
-    ? "backdrop-blur-md bg-slate-900/30 border-b border-blue-500/30 sticky top-0 z-50" 
+    ? "backdrop-blur-md bg-slate-900/30 border-b border-blue-500/30 sticky top-0 z-[100]" 
     : isAkira
-    ? "backdrop-blur-md bg-black/30 border-b border-red-500/30 sticky top-0 z-50" 
+    ? "backdrop-blur-md bg-black/30 border-b border-red-500/30 sticky top-0 z-[100]" 
     : isDark
-    ? "backdrop-blur-md bg-black/30 border-b border-white/10 sticky top-0 z-50" 
-    : "bg-white border-b border-gray-200 sticky top-0 z-50";
+    ? "backdrop-blur-md bg-black/30 border-b border-white/10 sticky top-0 z-[100]" 
+    : "bg-white border-b border-gray-200 sticky top-0 z-[100]";
   
   const textClasses = isDark ? "text-white" : "text-gray-700";
   const hoverTextClasses = isEdu
@@ -88,25 +89,37 @@ function Navbar({
             title="CS Lab Portal"
             onClick={onHomeClick}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${isAkira ? 'akira-glow' : isEdu ? 'edu-glow' : ''}`} viewBox="0 0 24 24" fill="none" stroke={isEdu ? '#3b82f6' : isAkira ? '#ef4444' : isDark ? '#22d3ee' : '#2563eb'} strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-            </svg>
+            <img 
+              src="/logo.png" 
+              alt="CS Lab Portal Logo" 
+              className={`h-8 w-8 transition-all duration-300 hover:scale-110 hover:rotate-12 animate-fade-in ${isAkira ? 'akira-glow' : isEdu ? 'edu-glow' : ''}`} 
+            />
             <div>
-              <div className={`text-xl font-bold ${isAkira ? 'text-red-500' : isDark ? 'text-cyan-400' : 'text-blue-600'} ${isAkira ? 'akira-text' : ''}`}>
-                CS Lab Portal
+              <div className={`text-xl font-bold font-heading transition-all duration-500 hover:scale-105 animate-fade-in ${isAkira ? 'akira-text' : ''}`}>
+                <ShinyText 
+                  text="CS Lab Portal" 
+                  speed={3} 
+                  color={isEdu ? '#ffffff' : isAkira ? '#ef4444' : isDark ? '#60a5fa' : '#2563eb'}
+                  className="text-xl font-bold font-heading"
+                />
               </div>
-              <div className={`text-xs ${isAkira ? 'text-red-400' : isDark ? 'text-gray-300' : 'text-gray-500'}`}>
-                Web Tech & Advanced Networks
+              <div className={`text-xs font-sans transition-all duration-700 animate-slide-up`}>
+                <ShinyText 
+                  text="Web Tech & Advanced Networks" 
+                  speed={4} 
+                  color={isEdu ? '#e5e7eb' : isAkira ? '#f87171' : isDark ? '#9ca3af' : '#6b7280'}
+                  className="text-xs font-sans"
+                />
               </div>
             </div>
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex space-x-4">
-            <button onClick={onHomeClick} className={`${textClasses} ${hoverTextClasses} font-medium px-3 py-2 rounded-md ${hoverBgClasses}`}>Home</button>
-            <button onClick={onLabsClick} className={`${textClasses} ${hoverTextClasses} font-medium px-3 py-2 rounded-md ${hoverBgClasses}`}>Labs</button>
-            <button onClick={onResourcesClick} className={`${textClasses} ${hoverTextClasses} font-medium px-3 py-2 rounded-md ${hoverBgClasses}`}>Resources</button>
-            <button onClick={onAboutClick} className={`${textClasses} ${hoverTextClasses} font-medium px-3 py-2 rounded-md ${hoverBgClasses}`}>About</button>
+            <button onClick={onHomeClick} className={`${textClasses} ${hoverTextClasses} font-medium px-3 py-2 rounded-md ${hoverBgClasses} font-sans`}>Home</button>
+            <button onClick={onLabsClick} className={`${textClasses} ${hoverTextClasses} font-medium px-3 py-2 rounded-md ${hoverBgClasses} font-sans`}>Labs</button>
+            <button onClick={onResourcesClick} className={`${textClasses} ${hoverTextClasses} font-medium px-3 py-2 rounded-md ${hoverBgClasses} font-sans`}>Resources</button>
+            <button onClick={onAboutClick} className={`${textClasses} ${hoverTextClasses} font-medium px-3 py-2 rounded-md ${hoverBgClasses} font-sans`}>About</button>
           </div>
 
           {/* Right Button or Profile */}
@@ -134,7 +147,7 @@ function Navbar({
                 
                 {/* Profile Dropdown */}
                 {showProfileDropdown && (
-                  <div className={`absolute right-0 top-12 w-48 py-2 mt-2 rounded-md shadow-xl z-20 ${
+                  <div className={`absolute right-0 top-12 w-48 py-2 mt-2 rounded-md shadow-xl z-[110] ${
                     isDark ? 'bg-slate-800 border border-blue-500/30' : 'bg-white border border-gray-200'
                   }`}>
                     <button 
@@ -173,7 +186,7 @@ function Navbar({
                 className={`${buttonClasses} transition duration-200 focus:outline-none focus:ring-2 ${isAkira ? 'focus:ring-red-400' : 'focus:ring-cyan-400'} ${isAkira ? 'akira-glow' : ''}`}
                 onClick={onAdminLogin}
               >
-                Developer Login
+                Login
               </button>
             )}
           </div>
@@ -204,14 +217,14 @@ function Navbar({
               ? 'bg-black/60 backdrop-blur-md border-t border-white/10' 
               : 'bg-white border-t border-gray-200'
         } space-y-2 px-4 py-2`}>
-          <button onClick={onHomeClick} className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2`}>Home</button>
-          <button onClick={onLabsClick} className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2`}>Labs</button>
-          <button onClick={onResourcesClick} className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2`}>Resources</button>
-          <button onClick={onAboutClick} className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2`}>About</button>
+          <button onClick={onHomeClick} className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2 font-sans`}>Home</button>
+          <button onClick={onLabsClick} className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2 font-sans`}>Labs</button>
+          <button onClick={onResourcesClick} className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2 font-sans`}>Resources</button>
+          <button onClick={onAboutClick} className={`block w-full text-left ${textClasses} ${hoverTextClasses} py-2 font-sans`}>About</button>
           {isLoggedIn && user ? (
             <div className="py-3 border-t border-blue-500/20 mt-2 space-y-2">
               <div className="flex items-center justify-between">
-                <span className={`${textClasses} font-medium`}>{user.name || user.username}</span>
+                <span className={`${textClasses} font-medium font-sans`}>{user.name || user.username}</span>
                 <div className="relative">
                   {user.avatar_url ? (
                     <img 
@@ -251,7 +264,7 @@ function Navbar({
               className={`w-full ${buttonClasses} transition duration-200 mt-2 focus:outline-none focus:ring-2 ${isAkira ? 'focus:ring-red-400 akira-glow' : isDark ? 'focus:ring-cyan-400' : 'focus:ring-blue-500'}`}
               onClick={onAdminLogin}
             >
-              Developer Login
+              Login
             </button>
           )}
         </div>

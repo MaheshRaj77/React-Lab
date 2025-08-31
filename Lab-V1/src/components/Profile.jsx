@@ -138,7 +138,7 @@ const Profile = ({ user, onUpdateUser, onClose, theme = 'education' }) => {
           }
 
           const imageResult = await imageResponse.json();
-          updateData.profile_image = imageResult.imageData;
+          updateData.profile_image_url = imageResult.imageData;
         } catch (imageError) {
           console.error('Image upload error:', imageError);
           setErrors({ general: 'Failed to upload image. Please try again.' });
@@ -155,12 +155,12 @@ const Profile = ({ user, onUpdateUser, onClose, theme = 'education' }) => {
       // Map API response back to expected user format
       const updatedUser = {
         ...user,
-        name: response.developer.lastName
-          ? `${response.developer.name} ${response.developer.lastName}`
+        name: response.developer.last_name
+          ? `${response.developer.name} ${response.developer.last_name}`
           : response.developer.name,
         email: response.developer.email,
-        updated_at: response.developer.updatedAt,
-        avatar_url: response.developer.profile_image ? `data:image/jpeg;base64,${response.developer.profile_image}` : user?.avatar_url
+        updated_at: response.developer.updated_at,
+        avatar_url: response.developer.profile_image_url || user?.avatar_url
       };
 
       onUpdateUser(updatedUser);

@@ -14,6 +14,23 @@ import developersRoutes from './routes/developers.js';
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Check if file is an image
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  }
+});
+
 // Security middleware
 app.use(helmet());
 
@@ -23,7 +40,9 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
-  'http://127.0.0.1:5173'
+  'http://127.0.0.1:5173',
+  'http://localhost:8000',
+  'http://127.0.0.1:8000'
 ];
 
 app.use(cors({
@@ -47,6 +66,9 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// File upload middleware for developers routes
+app.use('/api/developers', upload.single('profileImage'));
 
 // API routes
 app.use('/api/experiments', experimentsRoutes);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import ExperimentCard from '../components/ExperimentCard';
 import ExperimentDetailView from '../components/ExperimentDetailView';
 import ExperimentSkeleton from '../components/ExperimentSkeleton';
@@ -22,55 +23,41 @@ const LabsPage = ({
   const [experiments, setExperiments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [seeding, setSeeding] = useState(false);
   const [detailExperiment, setDetailExperiment] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
 
   // Fetch experiments from backend
-  useEffect(() => {
-    const fetchExperiments = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await backendAPI.getAll();
-        if (result.success && Array.isArray(result.data)) {
-          setExperiments(result.data);
-        } else {
-          setExperiments([]);
-          setError(result.error || 'Failed to fetch experiments.');
-        }
-      } catch (err) {
+  const fetchExperiments = async () => {
+    console.log('fetchExperiments called');
+    setLoading(true);
+    setError(null);
+    try {
+      console.log('Calling backendAPI.getAll()');
+      const result = await backendAPI.getAll();
+      console.log('API result:', result);
+      if (result.success && Array.isArray(result.data)) {
+        console.log('Setting experiments:', result.data.length, 'items');
+        setExperiments(result.data);
+      } else {
+        console.log('API call failed or returned invalid data');
         setExperiments([]);
-        setError(err.message || 'Failed to fetch experiments.');
-      } finally {
-        setLoading(false);
+        setError(result.error || 'Failed to fetch experiments.');
       }
-    };
+    } catch (err) {
+      console.log('API call threw error:', err);
+      setExperiments([]);
+      setError(err.message || 'Failed to fetch experiments.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchExperiments();
   }, []);
 
-  const handleSeedDatabase = async () => {
-    try {
-      setSeeding(true);
-      setError(null);
-      
-      const result = await backendAPI.seedDatabase();
-      
-      if (result.success) {
-        console.log('Database seeded successfully');
-        // Refresh the experiments list
-        await fetchExperiments();
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (err) {
-      console.error('Error seeding database:', err);
-      setError(`Failed to seed database: ${err.message}`);
-    } finally {
-      setSeeding(false);
-    }
-  };
+  // Launch experiment (open path)
 
   // Show detail view modal and fetch experiment by ID
   const handleShowDetail = async (experiment) => {
@@ -140,14 +127,14 @@ const LabsPage = ({
         {/* Header with Quote */}
         <div className="pt-32 pb-12 px-4">
           <div className="max-w-6xl mx-auto text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight font-heading">
               Virtual Labs
             </h1>
             <div className="max-w-4xl mx-auto">
-              <blockquote className="text-xl md:text-2xl text-gray-300 italic font-light leading-relaxed">
+              <blockquote className="text-xl md:text-2xl text-neutral-300 italic font-light leading-relaxed font-sans">
                 "The best way to learn is by doing. Explore, experiment, and discover through hands-on laboratory experiences."
               </blockquote>
-              <p className="text-gray-400 mt-4 text-lg">— Innovation through Practice</p>
+              <p className="text-neutral-400 mt-4 text-lg font-sans">— Innovation through Practice</p>
             </div>
           </div>
         </div>
@@ -168,8 +155,8 @@ const LabsPage = ({
               <div className="text-center py-12">
                 <div className="bg-slate-900/80 backdrop-blur-md rounded-xl p-8 border border-slate-700/50 max-w-md mx-auto">
                   <div className="text-6xl mb-4">🧪</div>
-                  <h3 className="text-xl font-bold text-white mb-4">No Experiments Found</h3>
-                  <p className="text-gray-400 mb-6">
+                  <h3 className="text-xl font-bold text-white mb-4 font-heading">No Experiments Found</h3>
+                  <p className="text-neutral-400 mb-6">
                     It looks like your experiments database is empty.
                   </p>
                 </div>
@@ -177,8 +164,8 @@ const LabsPage = ({
             ) : (
               <>
                 <div className="text-center mb-8">
-                  <p className="text-gray-400">
-                    Found <span className="text-blue-400 font-semibold">{experiments.length}</span> experiments in the database
+                  <p className="text-neutral-400">
+                    Found <span className="text-primary-400 font-semibold">{experiments.length}</span> experiments in the database
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -237,44 +224,15 @@ const LabsPage = ({
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="relative z-10 bg-slate-900/90 backdrop-blur-md border-t border-slate-700/50">
-          <div className="max-w-7xl mx-auto px-4 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div className="col-span-1 md:col-span-2">
-                <h3 className="text-xl font-bold text-white mb-4">React Lab</h3>
-                <p className="text-gray-400 leading-relaxed">
-                  Empowering developers with hands-on experiments and innovative solutions. 
-                  Explore, learn, and build the future of web development.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
-                <ul className="space-y-2">
-                  <li><a href="#" onClick={onHomeClick} className="text-gray-400 hover:text-blue-400 transition-colors">Home</a></li>
-                  <li><a href="#" onClick={onLabsClick} className="text-gray-400 hover:text-blue-400 transition-colors">Labs</a></li>
-                  <li><a href="#" onClick={onResourcesClick} className="text-gray-400 hover:text-blue-400 transition-colors">Resources</a></li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-4">Connect</h4>
-                <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">GitHub</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">Documentation</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">Support</a></li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="border-t border-slate-700/50 mt-8 pt-8 text-center">
-              <p className="text-gray-400">
-                © {new Date().getFullYear()} React Lab. Built with passion for learning and innovation.
-              </p>
-            </div>
-          </div>
-        </footer>
+        {/* Footer Component */}
+        <Footer
+          onHomeClick={onHomeClick}
+          onExploreClick={onLabsClick}
+          onResourcesClick={onResourcesClick}
+          onDashboardClick={onDashboardClick}
+          onAdminLogin={onAdminLogin}
+          isLoggedIn={isLoggedIn}
+        />
       </div>
     </div>
   );

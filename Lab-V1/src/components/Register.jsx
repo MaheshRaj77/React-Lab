@@ -84,7 +84,7 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
         confirmPassword: formData.confirmPassword
       };
       
-      const response = await developersAPI.register(registrationData);
+      await developersAPI.register(registrationData);
       
       // Show success state
       setRegistrationSuccess(true);
@@ -101,58 +101,56 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className={`
-        relative w-full max-w-lg rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto
-        ${isDark ? 'bg-slate-800 border border-blue-500/30' : 'bg-white border border-gray-200'}
-      `}>
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className={`absolute top-4 right-4 z-10 ${isDark ? 'text-gray-300 hover:text-white' : 'text-gray-500 hover:text-gray-700'}`}
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+    <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+      {/* LightRays Background */}
+      <div className="absolute inset-0 w-full h-full z-0">
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
 
-        <div className="p-8">
+      {/* Glassmorphism Modal */}
+      <div className="relative w-full max-w-lg z-10 max-h-[90vh] overflow-y-auto">
+        <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 animate-in fade-in-0 zoom-in-95 duration-300">
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors z-10"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
           {/* Header */}
           <div className="text-center mb-8">
-            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
-              isEdu ? 'bg-blue-500/20' : isAkira ? 'bg-red-500/20' : 'bg-cyan-500/20'
-            }`}>
-              <svg className={`w-8 h-8 ${
-                isEdu ? 'text-blue-400' : isAkira ? 'text-red-400' : 'text-cyan-400'
-              }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center mb-6 shadow-lg">
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
                       d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
               </svg>
             </div>
-            <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className="text-3xl font-bold text-white mb-2 font-heading">
               Create Account
             </h2>
-            <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} mt-2`}>
-              Join our developer community
+            <p className="text-white/70 text-sm font-sans">
+              Join our community
             </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {registrationSuccess && (
-              <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg text-sm text-center">
+              <div className="bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-3 rounded-lg text-sm text-center backdrop-blur-sm">
                 <div className="flex items-center justify-center mb-2">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                   </svg>
                   Account created successfully!
                 </div>
-                <p className="text-xs">Redirecting to login...</p>
+                <p className="text-xs font-sans">Redirecting to login...</p>
               </div>
             )}
             
             {errors.general && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg text-sm backdrop-blur-sm font-sans">
                 {errors.general}
               </div>
             )}
@@ -160,7 +158,7 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
             {/* Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                <label htmlFor="firstName" className="block text-sm font-medium text-white/80 mb-2 font-sans">
                   First Name
                 </label>
                 <input
@@ -170,24 +168,16 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
                   value={formData.firstName}
                   onChange={handleChange}
                   disabled={registrationSuccess}
-                  className={`
-                    w-full px-4 py-3 rounded-lg border transition-colors
-                    ${isDark 
-                      ? 'bg-slate-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:bg-slate-600' 
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-gray-50'
-                    }
-                    ${errors.firstName ? 'border-red-500' : ''}
-                    ${registrationSuccess ? 'opacity-50 cursor-not-allowed' : ''}
-                  `}
+                  className="w-full pl-4 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 backdrop-blur-sm font-sans disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="First name"
                 />
                 {errors.firstName && (
-                  <p className="mt-2 text-sm text-red-400">{errors.firstName}</p>
+                  <p className="mt-2 text-sm text-red-300 font-sans">{errors.firstName}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="lastName" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                <label htmlFor="lastName" className="block text-sm font-medium text-white/80 mb-2 font-sans">
                   Last Name
                 </label>
                 <input
@@ -196,25 +186,18 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className={`
-                    w-full px-4 py-3 rounded-lg border transition-colors
-                    ${isDark 
-                      ? 'bg-slate-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:bg-slate-600' 
-                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-gray-50'
-                    }
-                    ${errors.lastName ? 'border-red-500' : ''}
-                  `}
+                  className="w-full pl-4 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 backdrop-blur-sm font-sans"
                   placeholder="Last name"
                 />
                 {errors.lastName && (
-                  <p className="mt-2 text-sm text-red-400">{errors.lastName}</p>
+                  <p className="mt-2 text-sm text-red-300 font-sans">{errors.lastName}</p>
                 )}
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+              <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2 font-sans">
                 Email Address
               </label>
               <input
@@ -223,24 +206,17 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`
-                  w-full px-4 py-3 rounded-lg border transition-colors
-                  ${isDark 
-                    ? 'bg-slate-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:bg-slate-600' 
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-gray-50'
-                  }
-                  ${errors.email ? 'border-red-500' : ''}
-                `}
+                className="w-full pl-4 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 backdrop-blur-sm font-sans"
                 placeholder="Enter your email"
               />
               {errors.email && (
-                <p className="mt-2 text-sm text-red-400">{errors.email}</p>
+                <p className="mt-2 text-sm text-red-300 font-sans">{errors.email}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+              <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2 font-sans">
                 Password
               </label>
               <input
@@ -249,24 +225,17 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`
-                  w-full px-4 py-3 rounded-lg border transition-colors
-                  ${isDark 
-                    ? 'bg-slate-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:bg-slate-600' 
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-gray-50'
-                  }
-                  ${errors.password ? 'border-red-500' : ''}
-                `}
+                className="w-full pl-4 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 backdrop-blur-sm font-sans"
                 placeholder="Create a password"
               />
               {errors.password && (
-                <p className="mt-2 text-sm text-red-400">{errors.password}</p>
+                <p className="mt-2 text-sm text-red-300 font-sans">{errors.password}</p>
               )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-white/80 mb-2 font-sans">
                 Confirm Password
               </label>
               <input
@@ -275,34 +244,18 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className={`
-                  w-full px-4 py-3 rounded-lg border transition-colors
-                  ${isDark 
-                    ? 'bg-slate-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:bg-slate-600' 
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-gray-50'
-                  }
-                  ${errors.confirmPassword ? 'border-red-500' : ''}
-                `}
+                className="w-full pl-4 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 backdrop-blur-sm font-sans"
                 placeholder="Confirm your password"
               />
               {errors.confirmPassword && (
-                <p className="mt-2 text-sm text-red-400">{errors.confirmPassword}</p>
+                <p className="mt-2 text-sm text-red-300 font-sans">{errors.confirmPassword}</p>
               )}
             </div>
 
             <button
               type="submit"
               disabled={isLoading || registrationSuccess}
-              className={`
-                w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center
-                ${isEdu 
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                  : isAkira 
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-cyan-600 hover:bg-cyan-700 text-white'
-                }
-                ${(isLoading || registrationSuccess) ? 'opacity-50 cursor-not-allowed' : ''}
-              `}
+              className="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-sans flex items-center justify-center"
             >
               {registrationSuccess ? (
                 <>
@@ -327,16 +280,12 @@ const Register = ({ onRegister, onSwitchToLogin, onClose, theme = 'education' })
 
           {/* Switch to Login */}
           <div className="mt-6 text-center">
-            <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+            <p className="text-sm text-white/70 font-sans">
               Already have an account?{' '}
               <button
                 onClick={onSwitchToLogin}
                 disabled={registrationSuccess}
-                className={`font-medium ${
-                  isEdu ? 'text-blue-400 hover:text-blue-300' : 
-                  isAkira ? 'text-red-400 hover:text-red-300' : 
-                  'text-cyan-400 hover:text-cyan-300'
-                } transition-colors ${registrationSuccess ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className="font-medium text-primary-300 hover:text-primary-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-sans"
               >
                 Sign in here
               </button>

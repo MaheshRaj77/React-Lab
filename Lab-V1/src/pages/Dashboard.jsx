@@ -4,12 +4,13 @@ import developersAPI from '../api/developers';
 
 // Components
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import DashboardOverview from './view/dashboardoverview';
 import ExperimentsView from './view/experimentview';
 import Spinner from '../components/shared/Spinner';
 
 // User Management View Component
-const UserView = ({ user, onUpdateProfile }) => {
+const UserView = ({ user: _user, onUpdateProfile: _onUpdateProfile }) => {
   const [developers, setDevelopers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -107,14 +108,14 @@ const UserView = ({ user, onUpdateProfile }) => {
       <div className="mb-8">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white">User Management</h1>
-            <p className="mt-2 text-gray-400">
+            <h1 className="text-3xl font-bold text-white font-heading">User Management</h1>
+            <p className="mt-2 text-neutral-400">
               Manage developers and user accounts
             </p>
           </div>
           <button
             onClick={handleCreateDeveloper}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2 font-sans"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -140,7 +141,7 @@ const UserView = ({ user, onUpdateProfile }) => {
             <div className="flex space-x-2">
               <button
                 onClick={fetchDevelopers}
-                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                className="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700 transition-colors"
               >
                 Retry
               </button>
@@ -183,9 +184,9 @@ const UserView = ({ user, onUpdateProfile }) => {
       )}
 
       {/* Developers Table */}
-      <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-700">
-          <h2 className="text-xl font-semibold text-white">Developers ({developers.length})</h2>
+      <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/20">
+          <h2 className="text-xl font-semibold text-white font-heading">Developers ({developers.length})</h2>
         </div>
 
         {loading ? (
@@ -194,30 +195,30 @@ const UserView = ({ user, onUpdateProfile }) => {
           </div>
         ) : developers.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-gray-400">No developers found. Create your first developer to get started.</p>
+            <p className="text-neutral-400">No developers found. Create your first developer to get started.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-700/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Role</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Created</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700">
-                {developers.map((developer) => (
-                  <tr key={developer.id} className="hover:bg-slate-700/30">
+                {developers.map((developer, index) => (
+                  <tr key={developer.id || `developer-${index}`} className="hover:bg-slate-700/30">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium overflow-hidden">
-                          {developer.profile_image ? (
+                        <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-medium overflow-hidden">
+                          {developer.profile_image_url ? (
                             <img
-                              src={`data:image/jpeg;base64,${developer.profile_image}`}
-                              alt={`${developer.name} ${developer.lastName || ''}`}
+                              src={developer.profile_image_url}
+                              alt={`${developer.name} ${developer.last_name || ''}`}
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 e.target.style.display = 'none';
@@ -225,36 +226,38 @@ const UserView = ({ user, onUpdateProfile }) => {
                               }}
                             />
                           ) : null}
-                          <span style={{ display: developer.profile_image ? 'none' : 'flex' }}>
+                          <span style={{ display: developer.profile_image_url ? 'none' : 'flex' }}>
                             {developer.name?.charAt(0)?.toUpperCase() || 'D'}
                           </span>
                         </div>
                         <div className="ml-3">
                           <div className="text-sm font-medium text-white">{developer.name}</div>
-                          <div className="text-sm text-gray-400">{developer.lastName}</div>
+                          <div className="text-sm text-neutral-400">{developer.last_name}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{developer.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-300">{developer.email}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-500/20 text-blue-300">
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-primary-500/20 text-primary-300">
                         {developer.role || 'Developer'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
                       {developer.created_at ? new Date(developer.created_at).toLocaleDateString() : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button
+                          key={`edit-${developer.id || index}`}
                           onClick={() => handleEditDeveloper(developer)}
-                          className="text-blue-400 hover:text-blue-300 transition-colors"
+                          className="text-primary-400 hover:text-primary-300 transition-colors"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
                         <button
+                          key={`delete-${developer.id || index}`}
                           onClick={() => handleDeleteDeveloper(developer)}
                           className="text-red-400 hover:text-red-300 transition-colors"
                         >
@@ -289,7 +292,7 @@ const UserView = ({ user, onUpdateProfile }) => {
 const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
   const [formData, setFormData] = useState({
     name: developer?.name || '',
-    lastName: developer?.lastName || '',
+    lastName: developer?.last_name || '',
     email: developer?.email || '',
     role: developer?.role || 'Developer'
   });
@@ -299,9 +302,8 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
 
   // Set image preview when editing developer
   useEffect(() => {
-    if (developer?.profile_image) {
-      // The backend already returns base64 data, so just set it as data URL
-      setImagePreview(`data:image/jpeg;base64,${developer.profile_image}`);
+    if (developer?.profile_image_url) {
+      setImagePreview(developer.profile_image_url);
     } else {
       setImagePreview(null);
     }
@@ -369,12 +371,12 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-slate-700">
+      <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-white/20">
           <h2 className="text-xl font-semibold text-white">
             {developer ? 'Edit Developer' : 'Create New Developer'}
           </h2>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-white/70 text-sm mt-1">
             {developer ? 'Update developer information' : 'Add a new developer to the system'}
           </p>
         </div>
@@ -382,7 +384,7 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Profile Image Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Profile Image
             </label>
             <div className="flex items-center space-x-4">
@@ -394,7 +396,7 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 )}
@@ -409,7 +411,7 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
                 />
                 <label
                   htmlFor="profileImage"
-                  className="inline-block px-3 py-2 bg-slate-700 text-white rounded-lg cursor-pointer hover:bg-slate-600 transition-colors text-sm"
+                  className="inline-block px-3 py-2 bg-white/10 text-white/80 rounded-lg cursor-pointer hover:bg-white/20 transition-colors text-sm border border-white/20"
                 >
                   Choose Image
                 </label>
@@ -427,13 +429,13 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
             {imageError && (
               <p className="text-red-400 text-sm mt-1">{imageError}</p>
             )}
-            <p className="text-gray-400 text-xs mt-1">
+            <p className="text-neutral-400 text-xs mt-1">
               Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               First Name *
             </label>
             <input
@@ -442,13 +444,13 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="Enter first name"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Last Name *
             </label>
             <input
@@ -457,13 +459,13 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
               value={formData.lastName}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="Enter last name"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Email *
             </label>
             <input
@@ -472,20 +474,20 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="Enter email address"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Role
             </label>
             <select
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             >
               {roles.map(role => (
                 <option key={role} value={role}>{role}</option>
@@ -497,14 +499,14 @@ const DeveloperModal = ({ developer, onSave, onCancel, loading }) => {
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-gray-400 hover:text-gray-200 transition-colors"
+              className="px-4 py-2 text-neutral-400 hover:text-neutral-200 transition-colors font-sans"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 font-sans"
             >
               {loading && (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -534,7 +536,7 @@ const SettingsView = ({ user, onUpdateProfile }) => {
     try {
       await onUpdateProfile(profileData);
       alert('Profile updated successfully!');
-    } catch (error) {
+    } catch {
       alert('Failed to update profile');
     } finally {
       setLoading(false);
@@ -552,7 +554,7 @@ const SettingsView = ({ user, onUpdateProfile }) => {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Settings</h1>
+        <h1 className="text-3xl font-bold text-white font-heading">Settings</h1>
         <p className="mt-2 text-gray-400">
           Manage your account settings and preferences
         </p>
@@ -1204,6 +1206,16 @@ const Dashboard = ({
           loading={loading}
         />
       )}
+
+      {/* Footer Component */}
+      <Footer
+        onHomeClick={onHomeClick}
+        onExploreClick={onLabsClick}
+        onResourcesClick={onResourcesClick}
+        onDashboardClick={() => {}}
+        onAdminLogin={() => {}}
+        isLoggedIn={true}
+      />
     </div>
   );
 };

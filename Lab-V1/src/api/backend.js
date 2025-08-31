@@ -3,7 +3,9 @@
  */
 class BackendAPI {
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+    this.baseURL = import.meta.env.VITE_API_URL || '';
+    console.log('Backend API initialized with baseURL:', this.baseURL);
+    console.log('VITE_API_URL env var:', import.meta.env.VITE_API_URL);
   }
 
   /**
@@ -15,6 +17,7 @@ class BackendAPI {
    */
   async request(method, endpoint, data = null) {
     const url = `${this.baseURL}${endpoint}`;
+    console.log(`Making ${method} request to: ${url}`);
     const config = {
       method,
       headers: {
@@ -28,7 +31,9 @@ class BackendAPI {
 
     try {
       const response = await fetch(url, config);
+      console.log(`Response status: ${response.status}`);
       const responseData = await response.json();
+      console.log('Response data:', responseData);
 
       if (!response.ok) {
         throw new Error(responseData.error || `HTTP error! status: ${response.status}`);

@@ -19,7 +19,7 @@ const ExperimentsManagement = () => {
       setLoading(true);
       const data = await backendAPI.getAll();
       setExperiments(data);
-    } catch (err) {
+    } catch {
       setError('Failed to fetch experiments');
     } finally {
       setLoading(false);
@@ -46,7 +46,7 @@ const ExperimentsManagement = () => {
       setNewExperiment({ title: '', category: '', difficulty: '', description: '' });
       setFormErrors({});
       fetchExperiments();
-    } catch (err) {
+    } catch {
       setError('Failed to create experiment');
     }
   };
@@ -63,7 +63,7 @@ const ExperimentsManagement = () => {
       setEditForm({ title: '', category: '', difficulty: '', description: '' });
       setFormErrors({});
       fetchExperiments();
-    } catch (err) {
+    } catch {
       setError('Failed to update experiment');
     }
   };
@@ -73,7 +73,7 @@ const ExperimentsManagement = () => {
       try {
         await backendAPI.removeExperiment(id);
         fetchExperiments();
-      } catch (err) {
+      } catch {
         setError('Failed to delete experiment');
       }
     }

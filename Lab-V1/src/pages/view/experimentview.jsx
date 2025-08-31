@@ -80,7 +80,7 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
       }
       setSelectedExperiments([]);
       alert('Selected experiments deleted successfully!');
-    } catch (error) {
+    } catch {
       alert('Failed to delete some experiments. Please try again.');
     }
   };
@@ -160,7 +160,7 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
           // Here you would typically send these to the backend
           console.log('Imported experiments:', importedExperiments);
           alert('Import functionality would be implemented here');
-        } catch (error) {
+        } catch {
           alert('Invalid JSON file');
         }
       };
@@ -173,7 +173,7 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white">My Experiments</h1>
-          <p className="mt-2 text-gray-400">
+          <p className="mt-2 text-neutral-400">
             Manage and organize your experiments. Create, edit, and track your projects.
           </p>
         </div>
@@ -220,11 +220,11 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
       </div>
 
       {/* Filters and Search */}
-      <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+      <div className="mb-6 backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Search */}
           <div className="lg:col-span-2">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Search Experiments
             </label>
             <input
@@ -232,19 +232,19 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by title or description..."
-              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>
 
           {/* Category Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Category
             </label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="">All Categories</option>
               {categories.map(category => (
@@ -255,13 +255,13 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
 
           {/* Difficulty Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Difficulty
             </label>
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="">All Levels</option>
               {difficulties.map(difficulty => (
@@ -272,7 +272,7 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
 
           {/* Sort Options */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               Sort By
             </label>
             <select
@@ -282,7 +282,7 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
                 setSortBy(field);
                 setSortOrder(order);
               }}
-              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="created_at_desc">Newest First</option>
               <option value="created_at_asc">Oldest First</option>
@@ -296,20 +296,20 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
 
         {/* Filter Actions */}
         <div className="flex justify-between items-center mt-4">
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-neutral-400">
             Showing {filteredExperiments.length} of {experiments.length} experiments
           </div>
           <div className="flex space-x-2">
             <button
               onClick={clearFilters}
-              className="px-3 py-1 text-gray-400 hover:text-gray-200 text-sm border border-slate-600 rounded hover:border-slate-500 transition-colors"
+              className="px-3 py-1 text-neutral-400 hover:text-neutral-200 text-sm border border-slate-600 rounded hover:border-slate-500 transition-colors"
             >
               Clear Filters
             </button>
             {filteredExperiments.length > 0 && (
               <button
                 onClick={handleSelectAll}
-                className="px-3 py-1 text-blue-400 hover:text-blue-300 text-sm border border-slate-600 rounded hover:border-slate-500 transition-colors"
+                className="px-3 py-1 text-primary-400 hover:text-primary-300 text-sm border border-slate-600 rounded hover:border-slate-500 transition-colors"
               >
                 {selectedExperiments.length === filteredExperiments.length ? 'Deselect All' : 'Select All'}
               </button>
@@ -319,31 +319,31 @@ const ExperimentsView = ({ experiments, onCreate, onEdit, onDelete, loading }) =
       </div>
 
       {/* Experiment Templates */}
-      <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+      <div className="mb-6 backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
         <h3 className="text-lg font-semibold text-white mb-4">Quick Start Templates</h3>
-        <p className="text-gray-400 text-sm mb-4">
+        <p className="text-white/70 text-sm mb-4">
           Jumpstart your experiments with pre-built templates
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {experimentTemplates.map((template, index) => (
             <div
               key={index}
-              className="bg-slate-700/50 border border-slate-600 rounded-lg p-4 hover:bg-slate-600/50 transition-colors cursor-pointer"
+              className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-4 hover:bg-white/20 transition-all cursor-pointer hover:scale-105 duration-300"
               onClick={() => handleCreateFromTemplate(template)}
             >
               <div className="flex items-start justify-between mb-2">
                 <h4 className="text-white font-medium text-sm">{template.title}</h4>
-                <span className={`text-xs px-2 py-1 rounded ${
-                  template.difficulty === 'Beginner' ? 'bg-green-500/20 text-green-300' :
-                  template.difficulty === 'Intermediate' ? 'bg-yellow-500/20 text-yellow-300' :
-                  template.difficulty === 'Advanced' ? 'bg-orange-500/20 text-orange-300' :
-                  'bg-red-500/20 text-red-300'
+                <span className={`text-xs px-2 py-1 rounded-lg border ${
+                  template.difficulty === 'Beginner' ? 'bg-green-500/20 text-green-300 border-green-400/30' :
+                  template.difficulty === 'Intermediate' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30' :
+                  template.difficulty === 'Advanced' ? 'bg-orange-500/20 text-orange-300 border-orange-400/30' :
+                  'bg-red-500/20 text-red-300 border-red-400/30'
                 }`}>
                   {template.difficulty}
                 </span>
               </div>
-              <p className="text-gray-400 text-xs mb-3 line-clamp-2">{template.desc}</p>
-              <div className="flex items-center justify-between text-xs text-gray-500">
+              <p className="text-white/70 text-xs mb-3 line-clamp-2">{template.desc}</p>
+              <div className="flex items-center justify-between text-xs text-white/60">
                 <span>{template.category}</span>
                 <span>{template.estimated_time}</span>
               </div>

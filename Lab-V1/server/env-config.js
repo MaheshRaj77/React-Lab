@@ -1,7 +1,13 @@
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get the directory of the current module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables from .env file in server directory
-dotenv.config({ path: './server/.env' });
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Validate required environment variables
 const requiredEnvVars = [

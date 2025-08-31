@@ -48,7 +48,7 @@ function App() {
     setCurrentPage('home');
   };
 
-  const handleRegister = (userData) => {
+  const handleRegister = () => {
     // After successful registration, show login form instead of going to dashboard
     setShowRegister(false);
     setFromRegistration(true); // Set flag to show success message in login

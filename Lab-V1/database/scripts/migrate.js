@@ -21,7 +21,7 @@ async function runMigrations() {
       .filter(stmt => stmt.length > 0);
     
     for (const statement of statements) {
-      const { data, error } = await supabase.rpc('exec_sql', { sql_query: statement });
+      const { data: _data, error } = await supabase.rpc('exec_sql', { sql_query: statement });
       
       if (error) {
         console.error('❌ Migration error:', error);
@@ -32,7 +32,7 @@ async function runMigrations() {
     console.log('✅ Database migrations completed successfully!');
     
     // Test the table by querying it
-    const { data: testData, error: testError } = await supabase
+    const { data: _testData, error: testError } = await supabase
       .from('developers')
       .select('count(*)')
       .single();

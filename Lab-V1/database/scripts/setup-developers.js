@@ -5,7 +5,7 @@ async function createDevelopersTable() {
     console.log('🔄 Creating developers table with updated schema...');
 
     // First, let's check if the table already exists by trying to query it
-    const { data: existingData, error: existingError } = await supabase
+    const { data: _existingData, error: existingError } = await supabase
       .from('developers')
       .select('count(*)', { count: 'exact' })
       .limit(0);

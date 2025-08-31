@@ -1,30 +1,12 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import multer from 'multer';
 import { supabase } from '../config/supabase.js';
 
 const router = express.Router();
 
 // Secret key for JWT (in production, this should be in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
-
-// Configure multer for file uploads
-const upload = multer({
-  storage: multer.memoryStorage(), // Store files in memory as Buffer
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    // Allow only image files
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.'), false);
-    }
-  }
-});
 
 // Helper function to validate email format
 const isValidEmail = (email) => {
@@ -72,7 +54,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if developer already exists
-    const { data: existingDeveloper, error: checkError } = await supabase
+    const { data: existingDeveloper, error: _checkError } = await supabase
       .from('developers')
       .select('id')
       .eq('email', email.toLowerCase())
@@ -299,6 +281,56 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * GET /api/developers/admin-details
+ * Get admin developer details
+ */
+router.get('/admin-details', async (req, res) => {
+  try {
+    // Get the first admin user (you might want to modify this logic)
+    const { data: adminData, error } = await supabase
+      .from('developers')
+      .select('id, name, last_name, email, role, profile_image_url, created_at')
+      .eq('role', 'Admin', 'admin')
+      .limit(1)
+      .single();
+
+    if (error) {
+      // If no admin found, return null instead of static data
+      if (error.code === 'PGRST116') {
+        return res.status(200).json({
+          success: true,
+          data: null,
+          message: 'No admin user found in database'
+        });
+      }
+      throw error;
+    }
+
+    // Format the response to match frontend expectations
+    const formattedAdmin = {
+      id: adminData.id,
+      name: adminData.name,
+      lastName: adminData.last_name,
+      email: adminData.email,
+      role: adminData.role || 'Lead Developer',
+      profile_image_url: adminData.profile_image_url,
+      created_at: adminData.created_at
+    };
+
+    res.status(200).json({
+      success: true,
+      data: formattedAdmin
+    });
+
+  } catch (error) {
+    console.error('Admin details error:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+/**
  * GET /api/developers/admin
  * Get admin dashboard data
  */
@@ -339,6 +371,281 @@ router.get('/admin', async (req, res) => {
 
   } catch (error) {
     console.error('Admin dashboard error:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * PUT /api/developers/:id
+ * Update a developer profile
+ */
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Handle both FormData and JSON requests
+    let name, lastName, email, role, profile_image_url;
+
+    if (req.file) {
+      // Handle FormData request
+      name = req.body.name;
+      lastName = req.body.lastName;
+      email = req.body.email;
+      role = req.body.role;
+
+      // Convert uploaded image to base64 data URL for now
+      // In production, you'd upload to a cloud storage service
+      if (req.file) {
+        const base64Data = req.file.buffer.toString('base64');
+        const mimeType = req.file.mimetype;
+        profile_image_url = `data:${mimeType};base64,${base64Data}`;
+      }
+    } else {
+      // Handle JSON request
+      ({ name, lastName, email, role, profile_image_url } = req.body);
+    }
+
+    // Validate required fields
+    if (!name || !email) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        details: 'Name and email are required'
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        error: 'Invalid email format'
+      });
+    }
+
+    // Check if developer exists
+    const { data: existingDeveloper, error: fetchError } = await supabase
+      .from('developers')
+      .select('id, email')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingDeveloper) {
+      return res.status(404).json({
+        error: 'Developer not found'
+      });
+    }
+
+    // Check if email is already taken by another developer
+    if (email !== existingDeveloper.email) {
+      const { data: emailCheck, error: emailError } = await supabase
+        .from('developers')
+        .select('id')
+        .eq('email', email)
+        .neq('id', id)
+        .single();
+
+      if (emailCheck) {
+        return res.status(400).json({
+          error: 'Email already in use'
+        });
+      }
+    }
+
+    // Update developer
+    const updateData = {
+      name,
+      last_name: lastName,
+      email,
+      role: role || 'Developer',
+      profile_image_url: profile_image_url || null,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data: updatedDeveloper, error: updateError } = await supabase
+      .from('developers')
+      .update(updateData)
+      .eq('id', id)
+      .select('id, name, last_name, email, role, profile_image_url, created_at, updated_at')
+      .single();
+
+    if (updateError) {
+      console.error('Update error:', updateError);
+      return res.status(500).json({
+        error: 'Failed to update developer'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updatedDeveloper,
+      message: 'Developer updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Update developer error:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * POST /api/developers
+ * Create a new developer (admin function)
+ */
+router.post('/', async (req, res) => {
+  try {
+    // Handle both FormData and JSON requests
+    let name, lastName, email, password, role, profile_image_url;
+
+    if (req.file) {
+      // Handle FormData request
+      name = req.body.name;
+      lastName = req.body.lastName;
+      email = req.body.email;
+      password = req.body.password;
+      role = req.body.role;
+
+      // Convert uploaded image to base64 data URL for now
+      // In production, you'd upload to a cloud storage service
+      if (req.file) {
+        const base64Data = req.file.buffer.toString('base64');
+        const mimeType = req.file.mimetype;
+        profile_image_url = `data:${mimeType};base64,${base64Data}`;
+      }
+    } else {
+      // Handle JSON request
+      ({ name, lastName, email, password, role, profile_image_url } = req.body);
+    }
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        details: 'Name, email, and password are required'
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        error: 'Invalid email format'
+      });
+    }
+
+    if (!isValidPassword(password)) {
+      return res.status(400).json({
+        error: 'Password must be at least 6 characters long'
+      });
+    }
+
+    // Check if email already exists
+    const { data: existingDeveloper, error: emailCheckError } = await supabase
+      .from('developers')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (existingDeveloper) {
+      return res.status(400).json({
+        error: 'Email already in use'
+      });
+    }
+
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Create developer
+    const developerData = {
+      name,
+      last_name: lastName,
+      email,
+      password: hashedPassword,
+      role: role || 'Developer',
+      profile_image_url: profile_image_url || null
+    };
+
+    const { data: newDeveloper, error: createError } = await supabase
+      .from('developers')
+      .insert(developerData)
+      .select('id, name, last_name, email, role, profile_image_url, created_at')
+      .single();
+
+    if (createError) {
+      console.error('Create developer error:', createError);
+      return res.status(500).json({
+        error: 'Failed to create developer'
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      data: newDeveloper,
+      message: 'Developer created successfully'
+    });
+
+  } catch (error) {
+    console.error('Create developer error:', error);
+    res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * DELETE /api/developers/:id
+ * Delete a developer (admin function)
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if developer exists
+    const { data: existingDeveloper, error: fetchError } = await supabase
+      .from('developers')
+      .select('id, name, email')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingDeveloper) {
+      return res.status(404).json({
+        error: 'Developer not found'
+      });
+    }
+
+    // Don't allow deleting the last admin
+    if (existingDeveloper.role === 'Admin') {
+      const { data: adminCount, error: countError } = await supabase
+        .from('developers')
+        .select('id', { count: 'exact' })
+        .eq('role', 'Admin');
+
+      if (adminCount && adminCount.length === 1) {
+        return res.status(400).json({
+          error: 'Cannot delete the last admin'
+        });
+      }
+    }
+
+    // Delete developer
+    const { error: deleteError } = await supabase
+      .from('developers')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      console.error('Delete developer error:', deleteError);
+      return res.status(500).json({
+        error: 'Failed to delete developer'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Developer deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Delete developer error:', error);
     res.status(500).json({
       error: 'Internal server error'
     });
