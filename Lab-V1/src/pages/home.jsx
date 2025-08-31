@@ -121,28 +121,27 @@ const HomePage = ({
         />
 
         {/* Hero Section */}
-        <section className="relative pt-16 pb-32 flex content-center items-center justify-center min-h-[85vh]">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap items-center">
-              <div className="w-full lg:w-1/2 px-4 ml-auto mr-auto text-center lg:text-left">
-                <h1 className="text-5xl md:text-6xl font-extrabold leading-tight text-white mb-7 font-heading">
+        <section className="relative pt-20 pb-16 md:pb-32 flex items-center justify-center min-h-[80vh] md:min-h-[85vh]">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+              <div className="w-full lg:w-1/2 text-center lg:text-left">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-white mb-6 font-heading">
                   <EduGlow className="text-white">
                     CS Lab Portal
                   </EduGlow>
-                  <EduText className="block text-2xl font-normal text-primary-400 mt-2 font-sans">
+                  <EduText className="block text-xl md:text-2xl font-normal text-primary-400 mt-3 font-sans">
                     Web Technology & Advanced Computer Networks
                   </EduText>
                 </h1>
                 <div className="w-20 h-1 bg-gradient-to-r from-white to-primary-500 rounded-full mb-8 mx-auto lg:mx-0"></div>
-                <p className="text-xl md:text-2xl text-gray-200 mb-12 leading-relaxed font-sans">
+                <p className="text-lg md:text-xl text-gray-200 mb-10 leading-relaxed font-sans max-w-2xl mx-auto lg:mx-0">
                   Master advanced networking concepts and web technologies through hands-on virtual labs and cutting-edge experiments.
                 </p>
                 
-              
                 <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
                   <button
                     onClick={navigateToLabs}
-                    className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 via-primary-600 to-indigo-600 text-white font-semibold rounded-lg text-lg hover:from-blue-700 hover:via-primary-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/40 font-sans flex items-center gap-3 border border-blue-500/30 overflow-hidden"
+                    className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 via-primary-600 to-indigo-600 text-white font-semibold rounded-lg text-lg hover:from-blue-700 hover:via-primary-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/40 font-sans flex items-center justify-center gap-3 border border-blue-500/30 overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-200/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
                     <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,7 +150,7 @@ const HomePage = ({
                     <span className="relative z-10">Enter Labs</span>
                   </button>
                   <button
-                    className="group relative px-8 py-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border-2 border-emerald-400/40 text-white font-semibold rounded-lg text-lg hover:from-emerald-500/20 hover:to-teal-500/20 hover:border-emerald-400/60 transition-all duration-300 font-sans flex items-center gap-3 overflow-hidden shadow-lg hover:shadow-emerald-500/20"
+                    className="group relative px-8 py-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-sm border-2 border-emerald-400/40 text-white font-semibold rounded-lg text-lg hover:from-emerald-500/20 hover:to-teal-500/20 hover:border-emerald-400/60 transition-all duration-300 font-sans flex items-center justify-center gap-3 overflow-hidden shadow-lg hover:shadow-emerald-500/20"
                     onClick={navigateToResources}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-300/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
@@ -162,13 +161,24 @@ const HomePage = ({
                   </button>
                 </div>
               </div>
-              <div className="hidden lg:block w-full lg:w-1/2 px-4 mt-12 lg:mt-0">
-                <div className="relative">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-600 to-white rounded-xl blur opacity-75"></div>
-                  <img 
-                    src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                    alt="Network visualization"
-                    className="relative rounded-xl border border-primary-500/30 shadow-2xl animate-edu-float"
+              <div className="w-full lg:w-1/2 mt-8 lg:mt-0">
+                <div className="relative flex items-center justify-center h-80 md:h-96">
+                  <img
+                    src="/logo.png"
+                    alt="CS Lab Portal Logo"
+                    className="w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl hover:scale-110 transition-transform duration-300"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `
+                        <div class="w-20 h-20 md:w-24 md:h-24 mx-auto mb-6 bg-gradient-to-br from-primary-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                          <svg class="w-10 h-10 md:w-12 md:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-3 font-heading">Interactive Learning</h3>
+                        <p class="text-gray-300 text-base md:text-lg font-sans px-4">Experience hands-on networking and web development labs</p>
+                      `;
+                    }}
                   />
                 </div>
               </div>

@@ -128,7 +128,7 @@ export default {
         'fade-in': 'fade-in 0.6s ease-out',
         'slide-up': 'slide-up 0.8s ease-out',
         'scale-in': 'scale-in 0.3s ease-out',
-        'shine': 'shine 5s linear infinite',
+        'shine': 'shine 2s linear infinite',
       },
       fontFamily: {
         'sans': ['Poppins', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'sans-serif'],

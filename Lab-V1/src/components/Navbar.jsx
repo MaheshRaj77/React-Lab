@@ -95,19 +95,19 @@ function Navbar({
               className={`h-8 w-8 transition-all duration-300 hover:scale-110 hover:rotate-12 animate-fade-in ${isAkira ? 'akira-glow' : isEdu ? 'edu-glow' : ''}`} 
             />
             <div>
-              <div className={`text-xl font-bold font-heading transition-all duration-500 hover:scale-105 animate-fade-in ${isAkira ? 'akira-text' : ''}`}>
+              <div className="text-xl font-bold font-heading">
                 <ShinyText 
                   text="CS Lab Portal" 
                   speed={3} 
-                  color={isEdu ? '#ffffff' : isAkira ? '#ef4444' : isDark ? '#60a5fa' : '#2563eb'}
+                  color="#00d4ff"
                   className="text-xl font-bold font-heading"
                 />
               </div>
-              <div className={`text-xs font-sans transition-all duration-700 animate-slide-up`}>
+              <div className="text-xs font-sans">
                 <ShinyText 
                   text="Web Tech & Advanced Networks" 
                   speed={4} 
-                  color={isEdu ? '#e5e7eb' : isAkira ? '#f87171' : isDark ? '#9ca3af' : '#6b7280'}
+                  color="#60a5fa"
                   className="text-xs font-sans"
                 />
               </div>
